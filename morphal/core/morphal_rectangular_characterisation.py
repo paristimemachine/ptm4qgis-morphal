@@ -77,12 +77,6 @@ class MorphALRectangularCharacterisation(PTM4QgisAlgorithm):
     def help(self):
         return self.tr("Rectangular characterisation")
 
-    def group(self):
-        return self.tr("MorphAL")
-
-    def groupId(self):
-        return "morphal"
-
     def __init__(self):
         super().__init__()
         self.calc_methods = [

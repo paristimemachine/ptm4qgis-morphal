@@ -44,12 +44,6 @@ class MorphALGeometryToSegments(PTM4QgisAlgorithm):
             "Geometry to segments. Transform a layer of lines or polygons into segments."
         )
 
-    def group(self):
-        return self.tr("MorphAL")
-
-    def groupId(self):
-        return "morphal"
-
     def __init__(self):
         super().__init__()
 

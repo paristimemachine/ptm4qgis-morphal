@@ -58,12 +58,6 @@ class MorphALSegmentOrientation(PTM4QgisAlgorithm):
         # TODO improve help text
         return self.tr("Compute the orientations of a layer of segments")
 
-    def group(self):
-        return self.tr("MorphAL")
-
-    def groupId(self):
-        return "morphal"
-
     def __init__(self):
         super().__init__()
         self.export_z = False

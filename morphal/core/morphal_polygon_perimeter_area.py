@@ -46,12 +46,6 @@ class MorphALPolygonPerimeterArea(PTM4QgisAlgorithm):
         # TODO improve help text
         return self.tr("Compute the perimeters and areas of a layer of polygons")
 
-    def group(self):
-        return self.tr("MorphAL")
-
-    def groupId(self):
-        return "morphal"
-
     def __init__(self):
         super().__init__()
         self.export_z = False
