@@ -63,3 +63,6 @@ ssh_config
 # VS Code files
 .vscode/*
 */.vscode/*
+
+# tmp directory
+tmp/
