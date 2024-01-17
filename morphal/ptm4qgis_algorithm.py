@@ -1,13 +1,10 @@
 # -*- coding: utf-8 -*-
-
 """
 /***************************************************************************
-    morphal_geometry_utils.py
-    Part of the Paris Time Machine plugin for QGIS
+    MorphAL: PTM plugin for QGIS
     --------------
-    Date                 : January 2021
-    Copyright            : (C) 2021, Eric Grosso, Paris Time Machine
-    Email                : eric dot ptm at thefactory dot io
+    Start date           : January 2021
+    Copyright            : (C) 2021, Eric Grosso, PTM
  ***************************************************************************/
 
 /***************************************************************************
@@ -20,16 +17,13 @@
  ***************************************************************************/
 """
 
-__author__ = 'Eric Grosso'
-__date__ = 'January 2021'
-__copyright__ = '(C) 2021, Eric Grosso, Paris Time Machine'
-
-from qgis.core import QgsProcessingAlgorithm, QgsProcessingFeatureBasedAlgorithm
+from qgis.core import QgsProcessingAlgorithm
 from qgis.PyQt.QtCore import QCoreApplication
+
 # from processing.algs.help import shortHelp
 
-class PTM4QgisAlgorithm(QgsProcessingAlgorithm):
 
+class PTM4QgisAlgorithm(QgsProcessingAlgorithm):
     def __init__(self):
         super().__init__()
 
@@ -38,13 +32,13 @@ class PTM4QgisAlgorithm(QgsProcessingAlgorithm):
         # return shortHelp.get(self.id(), None)
         return self.help()
 
-    def tr(self, string, context=''):
-        if context == '':
+    def tr(self, string, context=""):
+        if context == "":
             context = self.__class__.__name__
         return QCoreApplication.translate(context, string)
 
-    def trAlgorithm(self, string, context=''):
-        if context == '':
+    def trAlgorithm(self, string, context=""):
+        if context == "":
             context = self.__class__.__name__
         return string, QCoreApplication.translate(context, string)
 

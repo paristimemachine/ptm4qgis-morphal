@@ -1,13 +1,10 @@
 # -*- coding: utf-8 -*-
-
 """
 /***************************************************************************
-    morphal_geometry_to_segments.py
-    Part of the Paris Time Machine plugin for QGIS
+    MorphAL: PTM plugin for QGIS
     --------------
-    Date                 : January 2021
-    Copyright            : (C) 2021, Eric Grosso, Paris Time Machine
-    Email                : eric dot ptm at thefactory dot io
+    Start date           : January 2021
+    Copyright            : (C) 2021, Eric Grosso, PTM
  ***************************************************************************/
 
 /***************************************************************************
@@ -20,44 +17,38 @@
  ***************************************************************************/
 """
 
-__author__ = 'Eric Grosso'
-__date__ = 'January 2021'
-__copyright__ = '(C) 2021, Eric Grosso, Paris Time Machine'
-
-from qgis.PyQt.QtCore import QVariant
-
-from qgis.core import (QgsFeature,
-                       QgsGeometry,
-                       QgsFeatureSink,
-                       QgsLineString,
-                       QgsMessageLog,
-                       QgsPoint,
-                       QgsProcessing,
-                       QgsProcessingUtils,
-                       QgsProcessingException,
-                       QgsProcessingParameterBoolean,
-                       QgsProcessingParameterFeatureSource,
-                       QgsProcessingParameterEnum,
-                       QgsProcessingParameterFeatureSink,
-                       QgsWkbTypes)
-
-from .morphal_geometry_utils import *
+from qgis.core import (
+    QgsFeature,
+    QgsFeatureSink,
+    QgsGeometry,
+    QgsPoint,
+    QgsProcessing,
+    QgsProcessingException,
+    QgsProcessingParameterBoolean,
+    QgsProcessingParameterFeatureSink,
+    QgsProcessingParameterFeatureSource,
+    QgsWkbTypes,
+)
 
 from ..ptm4qgis_algorithm import PTM4QgisAlgorithm
+from .morphal_geometry_utils import *
+
 
 class MorphALGeometryToSegments(PTM4QgisAlgorithm):
-    INPUT = 'INPUT'
-    UNICITY = 'UNICITY'
-    OUTPUT = 'OUTPUT'
+    INPUT = "INPUT"
+    UNICITY = "UNICITY"
+    OUTPUT = "OUTPUT"
 
     def help(self):
-        return self.tr('Geometry to segments. Transform a layer of lines or polygons into segments.')
+        return self.tr(
+            "Geometry to segments. Transform a layer of lines or polygons into segments."
+        )
 
     def group(self):
-        return self.tr('MorphAL')
+        return self.tr("MorphAL")
 
     def groupId(self):
-        return 'morphal'
+        return "morphal"
 
     def __init__(self):
         super().__init__()
@@ -66,47 +57,55 @@ class MorphALGeometryToSegments(PTM4QgisAlgorithm):
         self.addParameter(
             QgsProcessingParameterFeatureSource(
                 self.INPUT,
-                self.tr('Input layer'),
-                types=[QgsProcessing.TypeVectorLine, QgsProcessing.TypeVectorPolygon]
+                self.tr("Input layer"),
+                types=[QgsProcessing.TypeVectorLine, QgsProcessing.TypeVectorPolygon],
             )
         )
         self.addParameter(
             QgsProcessingParameterBoolean(
-                self.UNICITY,
-                self.tr('Unicity of created segments'),
-                True
+                self.UNICITY, self.tr("Unicity of created segments"), True
             )
         )
         self.addParameter(
             QgsProcessingParameterFeatureSink(
-                self.OUTPUT,
-                self.tr('Segments'),
-                QgsProcessing.TypeVectorLine
+                self.OUTPUT, self.tr("Segments"), QgsProcessing.TypeVectorLine
             )
         )
 
     def name(self):
-        return 'morphalgeometrytosegments'
+        return "morphalgeometrytosegments"
 
     def displayName(self):
-        return self.tr('Geometry to segments')
+        return self.tr("Geometry to segments")
 
     def processAlgorithm(self, parameters, context, feedback):
         unicity = self.parameterAsBoolean(parameters, self.UNICITY, context)
 
         source = self.parameterAsSource(parameters, self.INPUT, context)
         if source is None:
-            raise QgsProcessingException(self.invalidSourceError(parameters, self.INPUT))
+            raise QgsProcessingException(
+                self.invalidSourceError(parameters, self.INPUT)
+            )
 
         wkb_type = source.wkbType()
 
-        if (QgsWkbTypes.geometryType(wkb_type) != QgsWkbTypes.PolygonGeometry
-            and QgsWkbTypes.geometryType(wkb_type) != QgsWkbTypes.LineGeometry):
-            feedback.reportError('The layer geometry type is different from a line or a polygon')
+        if (
+            QgsWkbTypes.geometryType(wkb_type) != QgsWkbTypes.PolygonGeometry
+            and QgsWkbTypes.geometryType(wkb_type) != QgsWkbTypes.LineGeometry
+        ):
+            feedback.reportError(
+                "The layer geometry type is different from a line or a polygon"
+            )
             return {}
 
-        (sink, dest_id) = self.parameterAsSink(parameters, self.OUTPUT, context,
-                                               source.fields(), QgsWkbTypes.LineString, source.sourceCrs())
+        (sink, dest_id) = self.parameterAsSink(
+            parameters,
+            self.OUTPUT,
+            context,
+            source.fields(),
+            QgsWkbTypes.LineString,
+            source.sourceCrs(),
+        )
         if sink is None:
             raise QgsProcessingException(self.invalidSinkError(parameters, self.OUTPUT))
 
@@ -124,7 +123,9 @@ class MorphALGeometryToSegments(PTM4QgisAlgorithm):
                     if not f.hasGeometry():
                         continue
                     else:
-                        for p in self.polygon_to_unique_segments(f.geometry(), all_segments):
+                        for p in self.polygon_to_unique_segments(
+                            f.geometry(), all_segments
+                        ):
                             feat = QgsFeature()
                             feat.setAttributes(f.attributes())
                             feat.setGeometry(p)
@@ -155,7 +156,9 @@ class MorphALGeometryToSegments(PTM4QgisAlgorithm):
                     if not f.hasGeometry():
                         continue
                     else:
-                        for p in self.line_to_unique_segments(f.geometry(), all_segments):
+                        for p in self.line_to_unique_segments(
+                            f.geometry(), all_segments
+                        ):
                             feat = QgsFeature()
                             feat.setAttributes(f.attributes())
                             feat.setGeometry(p)
@@ -232,7 +235,6 @@ class MorphALGeometryToSegments(PTM4QgisAlgorithm):
                         p2 = QgsPoint(line[i + 1])
 
                         segment = create_normalized_segment(p1, p2)
-                        segment_wkt = segment.asWkt()
                         segments.append(segment)
             else:
                 line = boundary.asPolyline()
@@ -257,7 +259,7 @@ class MorphALGeometryToSegments(PTM4QgisAlgorithm):
                         p1 = QgsPoint(line[i])
                         p2 = QgsPoint(line[i + 1])
 
-                        segment = createNormalizeSegmentLinestring(p1, p2)
+                        segment = create_normalized_segment(p1, p2)
                         segment_wkt = segment.asWkt()
 
                         if segment_wkt not in all_segments:
@@ -269,7 +271,7 @@ class MorphALGeometryToSegments(PTM4QgisAlgorithm):
                     p1 = QgsPoint(line[i])
                     p2 = QgsPoint(line[i + 1])
 
-                    segment = createNormalizeSegmentLinestring(p1, p2)
+                    segment = create_normalized_segment(p1, p2)
                     segment_wkt = segment.asWkt()
 
                     if segment_wkt not in all_segments:
@@ -292,7 +294,6 @@ class MorphALGeometryToSegments(PTM4QgisAlgorithm):
                         p2 = QgsPoint(line[i + 1])
 
                         segment = create_normalized_segment(p1, p2)
-                        segment_wkt = segment.asWkt()
                         segments.append(segment)
             else:
                 line = geom.asPolyline()

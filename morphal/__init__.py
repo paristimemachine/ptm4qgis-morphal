@@ -1,13 +1,10 @@
 # -*- coding: utf-8 -*-
-
 """
 /***************************************************************************
-    PTM4Qgis
-    Part of the Paris Time Machine plugin for QGIS
+    PTM4QGIS
     --------------
-    Date                 : January 2021
-    Copyright            : (C) 2021, Eric Grosso, Paris Time Machine
-    Email                : eric dot ptm at thefactory dot io
+    Start date           : January 2021
+    Copyright            : (C) 2021, Eric Grosso, PTM
  ***************************************************************************/
 
 /***************************************************************************
@@ -33,6 +30,7 @@ def classFactory(iface):  # pylint: disable=invalid-name
     :type iface: QgsInterface
     """
 
-    from ptm4qgis.ptm4qgis import PTMPlugin
+    from .ptm4qgis import PTMPlugin
+
     # return PTMPlugin()  # if no UI
     return PTMPlugin(iface)

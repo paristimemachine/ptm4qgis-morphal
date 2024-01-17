@@ -1,13 +1,10 @@
 # -*- coding: utf-8 -*-
-
 """
 /***************************************************************************
-    morphal_polygon_perimeter_area.py
-    Part of the Paris Time Machine plugin for QGIS
+    MorphAL: PTM plugin for QGIS
     --------------
-    Date                 : January 2021
-    Copyright            : (C) 2021, Eric Grosso, Paris Time Machine
-    Email                : eric dot ptm at thefactory dot io
+    Start date           : January 2021
+    Copyright            : (C) 2021, Eric Grosso, PTM
  ***************************************************************************/
 
 /***************************************************************************
@@ -20,87 +17,89 @@
  ***************************************************************************/
 """
 
-__author__ = 'Eric Grosso'
-__date__ = 'January 2021'
-__copyright__ = '(C) 2021, Eric Grosso, Paris Time Machine'
-
+from qgis.core import (
+    NULL,
+    QgsCoordinateTransform,
+    QgsDistanceArea,
+    QgsFeatureSink,
+    QgsField,
+    QgsFields,
+    QgsProcessing,
+    QgsProcessingException,
+    QgsProcessingParameterEnum,
+    QgsProcessingParameterFeatureSink,
+    QgsProcessingParameterFeatureSource,
+    QgsProcessingUtils,
+    QgsWkbTypes,
+)
 from qgis.PyQt.QtCore import QVariant
 
-from qgis.core import (NULL,
-                       QgsCoordinateTransform,
-                       QgsField,
-                       QgsFields,
-                       QgsWkbTypes,
-                       QgsFeatureSink,
-                       QgsDistanceArea,
-                       QgsProcessing,
-                       QgsProcessingUtils,
-                       QgsProcessingException,
-                       QgsProcessingParameterFeatureSource,
-                       QgsProcessingParameterEnum,
-                       QgsProcessingParameterFeatureSink)
-
-from qgis import processing
 from ..ptm4qgis_algorithm import PTM4QgisAlgorithm
 
+
 class MorphALPolygonPerimeterArea(PTM4QgisAlgorithm):
-    INPUT = 'INPUT'
-    METHOD = 'CALC_METHOD'
-    OUTPUT = 'OUTPUT'
+    INPUT = "INPUT"
+    METHOD = "CALC_METHOD"
+    OUTPUT = "OUTPUT"
 
     def help(self):
         # TODO improve help text
-        return self.tr('Compute the perimeters and areas of a layer of polygons')
+        return self.tr("Compute the perimeters and areas of a layer of polygons")
 
     def group(self):
-        return self.tr('MorphAL')
+        return self.tr("MorphAL")
 
     def groupId(self):
-        return 'morphal'
+        return "morphal"
 
     def __init__(self):
         super().__init__()
         self.export_z = False
         self.export_m = False
         self.distance_area = None
-        self.calc_methods = [self.tr('Layer CRS'),
-                             self.tr('Project CRS'),
-                             self.tr('Ellipsoidal')]
+        self.calc_methods = [
+            self.tr("Layer CRS"),
+            self.tr("Project CRS"),
+            self.tr("Ellipsoidal"),
+        ]
 
     def initAlgorithm(self, config):
         self.addParameter(
             QgsProcessingParameterFeatureSource(
                 self.INPUT,
-                self.tr('Input layer'),
-                types=[QgsProcessing.TypeVectorPolygon]
+                self.tr("Input layer"),
+                types=[QgsProcessing.TypeVectorPolygon],
             )
         )
+
         self.addParameter(
             QgsProcessingParameterEnum(
                 self.METHOD,
-                self.tr('Calculate using'),
+                self.tr("Calculate using"),
                 options=self.calc_methods,
-                defaultValue=0
+                defaultValue=0,
             )
         )
+
         self.addParameter(
             QgsProcessingParameterFeatureSink(
-                self.OUTPUT,
-                self.tr('Layer with added perimeters and areas')
+                self.OUTPUT, self.tr("Layer with added perimeters and areas")
             )
         )
 
     def name(self):
-        return 'morphalpolygonperimeterarea'
+        return "morphalpolygonperimeterarea"
 
     def displayName(self):
         # TODO IMPROVE TEXT
-        return self.tr('Compute the perimeters and areas of a layer of polygons')
+        return self.tr("Compute the perimeters and areas of a layer of polygons")
 
     def processAlgorithm(self, parameters, context, feedback):
         source = self.parameterAsSource(parameters, self.INPUT, context)
         if source is None:
-            raise QgsProcessingException(self.invalidSourceError(parameters, self.INPUT))
+            raise QgsProcessingException(
+                self.invalidSourceError(parameters, self.INPUT)
+            )
 
         method = self.parameterAsEnum(parameters, self.METHOD, context)
 
@@ -108,18 +107,19 @@ class MorphALPolygonPerimeterArea(PTM4QgisAlgorithm):
 
         if QgsWkbTypes.geometryType(wkb_type) != QgsWkbTypes.PolygonGeometry:
             # TODO IMPROVE FEEDBACK
-            feedback.reportError('The layer geometry type is different from a polygon')
+            feedback.reportError("The layer geometry type is different from a polygon")
             return {}
 
         fields = source.fields()
 
         new_fields = QgsFields()
-        new_fields.append(QgsField('perimeter', QVariant.Double))
-        new_fields.append(QgsField('area', QVariant.Double))
+        new_fields.append(QgsField("perimeter", QVariant.Double))
+        new_fields.append(QgsField("area", QVariant.Double))
 
         fields = QgsProcessingUtils.combineFields(fields, new_fields)
-        (sink, dest_id) = self.parameterAsSink(parameters, self.OUTPUT, context,
-                                               fields, wkb_type, source.sourceCrs())
+        (sink, dest_id) = self.parameterAsSink(
+            parameters, self.OUTPUT, context, fields, wkb_type, source.sourceCrs()
+        )
         if sink is None:
             raise QgsProcessingException(self.invalidSinkError(parameters, self.OUTPUT))
 
@@ -132,12 +132,18 @@ class MorphALPolygonPerimeterArea(PTM4QgisAlgorithm):
 
         self.distance_area = QgsDistanceArea()
         if method == 2:
-            self.distance_area.setSourceCrs(source.sourceCrs(), context.transformContext())
+            self.distance_area.setSourceCrs(
+                source.sourceCrs(), context.transformContext()
+            )
             self.distance_area.setEllipsoid(context.ellipsoid())
         elif method == 1:
             if not context.project():
-                raise QgsProcessingException(self.tr('No project is available in this context'))
-            coordTransform = QgsCoordinateTransform(source.sourceCrs(), context.project().crs(), context.project())
+                raise QgsProcessingException(
+                    self.tr("No project is available in this context")
+                )
+            coordTransform = QgsCoordinateTransform(
+                source.sourceCrs(), context.project().crs(), context.project()
+            )
 
         features = source.getFeatures()
         total = 100.0 / source.featureCount() if source.featureCount() else 0

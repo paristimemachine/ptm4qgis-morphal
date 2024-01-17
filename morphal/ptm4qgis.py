@@ -1,13 +1,10 @@
 # -*- coding: utf-8 -*-
-
 """
 /***************************************************************************
-    ptm4qgis.py
-    Part of the Paris Time Machine plugin for QGIS
+    MorphAL: PTM plugin for QGIS
     --------------
-    Date                 : January 2021
-    Copyright            : (C) 2021, Eric Grosso, Paris Time Machine
-    Email                : eric dot ptm at thefactory dot io
+    Start date           : January 2021
+    Copyright            : (C) 2021, Eric Grosso, PTM
  ***************************************************************************/
 
 /***************************************************************************
@@ -20,15 +17,12 @@
  ***************************************************************************/
 """
 
-__author__ = 'Eric Grosso'
-__date__ = 'January 2021'
-__copyright__ = '(C) 2021, Eric Grosso, Paris Time Machine'
-
+import inspect
 import os
 import sys
-import inspect
 
-from qgis.core import QgsProcessingAlgorithm, QgsApplication
+from qgis.core import QgsApplication
+
 from .ptm4qgis_provider import PTM4QgisProvider
 
 cmd_folder = os.path.split(inspect.getfile(inspect.currentframe()))[0]
@@ -36,8 +30,8 @@ cmd_folder = os.path.split(inspect.getfile(inspect.currentframe()))[0]
 if cmd_folder not in sys.path:
     sys.path.insert(0, cmd_folder)
 
-class PTMPlugin(object):
 
+class PTMPlugin(object):
     def __init__(self, iface):
         self.provider = None
         # Save reference to the QGIS interface
@@ -46,7 +40,9 @@ class PTMPlugin(object):
         self.plugin_dir = os.path.dirname(__file__)
 
     def initProcessing(self):
-        """Init Processing provider for QGIS >= 3.8."""
+        """
+        Init Processing provider for QGIS >= 3.8.
+        """
         self.provider = PTM4QgisProvider()
         QgsApplication.processingRegistry().addProvider(self.provider)
 

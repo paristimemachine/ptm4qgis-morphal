@@ -1,13 +1,10 @@
 # -*- coding: utf-8 -*-
-
 """
 /***************************************************************************
-    morphal_segment_orientation.py
-    Part of the Paris Time Machine plugin for QGIS
+    MorphAL: PTM plugin for QGIS
     --------------
-    Date                 : January 2021
-    Copyright            : (C) 2021, Eric Grosso, Paris Time Machine
-    Email                : eric dot ptm at thefactory dot io
+    Start date           : January 2021
+    Copyright            : (C) 2021, Eric Grosso, PTM
  ***************************************************************************/
 
 /***************************************************************************
@@ -20,31 +17,30 @@
  ***************************************************************************/
 """
 
-__author__ = 'Eric Grosso'
-__date__ = 'January 2021'
-__copyright__ = '(C) 2021, Eric Grosso, Paris Time Machine'
-
+from qgis.core import (
+    NULL,
+    QgsCoordinateTransform,
+    QgsDistanceArea,
+    QgsFeatureSink,
+    QgsField,
+    QgsFields,
+    QgsProcessing,
+    QgsProcessingException,
+    QgsProcessingParameterBoolean,
+    QgsProcessingParameterEnum,
+    QgsProcessingParameterFeatureSink,
+    QgsProcessingParameterFeatureSource,
+    QgsProcessingParameterNumber,
+    QgsProcessingUtils,
+    QgsWkbTypes,
+)
 from qgis.PyQt.QtCore import QVariant
 
-from qgis.core import (NULL,
-                       QgsCoordinateTransform,
-                       QgsField,
-                       QgsFields,
-                       QgsWkbTypes,
-                       QgsFeatureSink,
-                       QgsDistanceArea,
-                       QgsProcessing,
-                       QgsProcessingUtils,
-                       QgsProcessingException,
-                       QgsProcessingParameterBoolean,
-                       QgsProcessingParameterEnum,
-                       QgsProcessingParameterFeatureSource,
-                       QgsProcessingParameterFeatureSink,
-                       QgsProcessingParameterNumber)
+from ..ptm4qgis_algorithm import PTM4QgisAlgorithm
 
 # from qgis import processing
 from .morphal_geometry_utils import *
-from ..ptm4qgis_algorithm import PTM4QgisAlgorithm
+
 
 class MorphALSegmentOrientation(PTM4QgisAlgorithm):
     INPUT = 'INPUT'

@@ -1,13 +1,10 @@
 # -*- coding: utf-8 -*-
-
 """
 /***************************************************************************
-    ptm4qgis_provider.py
-    Part of the Paris Time Machine plugin for QGIS
+    MorphAL: PTM plugin for QGIS
     --------------
-    Date                 : January 2021
-    Copyright            : (C) 2021, Eric Grosso, Paris Time Machine
-    Email                : eric dot ptm at thefactory dot io
+    Start date           : January 2021
+    Copyright            : (C) 2021, Eric Grosso, PTM
  ***************************************************************************/
 
 /***************************************************************************
@@ -20,19 +17,15 @@
  ***************************************************************************/
 """
 
-__author__ = 'Eric Grosso'
-__date__ = 'January 2021'
-__copyright__ = '(C) 2021, Eric Grosso, Paris Time Machine'
-
 from qgis.core import QgsProcessingProvider
 
-from .morphal.morphal_polygon_perimeter_area import MorphALPolygonPerimeterArea
-from .morphal.morphal_geometry_to_segments import MorphALGeometryToSegments
-from .morphal.morphal_segment_orientation import MorphALSegmentOrientation
-from .morphal.morphal_rectangular_characterisation import MorphALRectangularCharacterisation
+from .core.morphal_geometry_to_segments import MorphALGeometryToSegments
+from .core.morphal_polygon_perimeter_area import MorphALPolygonPerimeterArea
+from .core.morphal_rectangular_characterisation import MorphALRectangularCharacterisation
+from .core.morphal_segment_orientation import MorphALSegmentOrientation
+
 
 class PTM4QgisProvider(QgsProcessingProvider):
-
     def __init__(self):
         """
         Default constructor.
@@ -61,7 +54,7 @@ class PTM4QgisProvider(QgsProcessingProvider):
         string should be a unique, short, character only string, eg "qgis" or
         "gdal". This string should not be localised.
         """
-        return 'paristimemachine'
+        return "morphal"
 
     def name(self):
         """
@@ -70,7 +63,7 @@ class PTM4QgisProvider(QgsProcessingProvider):
 
         This string should be short (e.g. "Lastools") and localised.
         """
-        return self.tr('Paris Time Machine')
+        return self.tr("PTM")
 
     def icon(self):
         """

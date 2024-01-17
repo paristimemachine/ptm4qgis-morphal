@@ -1,13 +1,10 @@
 # -*- coding: utf-8 -*-
-
 """
 /***************************************************************************
-    morphal_rectangular_characterisation.py
-    Part of the Paris Time Machine plugin for QGIS
+    MorphAL: PTM plugin for QGIS
     --------------
-    Date                 : January 2021
-    Copyright            : (C) 2021, Eric Grosso, Paris Time Machine
-    Email                : eric dot ptm at thefactory dot io
+    Start date           : January 2021
+    Copyright            : (C) 2021, Eric Grosso, PTM
  ***************************************************************************/
 
 /***************************************************************************
@@ -20,102 +17,95 @@
  ***************************************************************************/
 """
 
-__author__ = 'Eric Grosso'
-__date__ = 'January 2021'
-__copyright__ = '(C) 2021, Eric Grosso, Paris Time Machine'
-
-# from qgis.PyQt.QtGui import QIcon
+from qgis.core import (
+    NULL,
+    QgsApplication,
+    QgsFeature,
+    QgsFeatureRequest,
+    QgsFeatureSink,
+    QgsField,
+    QgsFields,
+    QgsProcessing,
+    QgsProcessingException,
+    QgsProcessingFeatureSource,
+    QgsProcessingParameterBoolean,
+    QgsProcessingParameterEnum,
+    QgsProcessingParameterFeatureSink,
+    QgsProcessingParameterFeatureSource,
+    QgsProcessingParameterNumber,
+    QgsProcessingUtils,
+)
 from qgis.PyQt.QtCore import QVariant
 
-from qgis.core import (NULL,
-                       QgsApplication,
-                       QgsSettings,
-                       QgsGeometry,
-                       QgsFeature,
-                       QgsField,
-                       QgsFeatureRequest,
-                       QgsFeatureSink,
-                       QgsWkbTypes,
-                       QgsFields,
-                       QgsProcessing,
-                       QgsProcessingException,
-                       QgsProcessingFeatureSource,
-                       QgsProcessingOutputNumber,
-                       QgsProcessingParameterBoolean,
-                       QgsProcessingParameterEnum,
-                       QgsProcessingParameterFeatureSource,
-                       QgsProcessingParameterFeatureSink,
-                       QgsProcessingParameterNumber,
-                       QgsProcessingUtils,
-                       QgsVectorLayer)
-
-from .morphal_geometry_utils import *
 from ..ptm4qgis_algorithm import PTM4QgisAlgorithm
+from .morphal_geometry_utils import *
+
 
 class MorphALRectangularCharacterisation(PTM4QgisAlgorithm):
+    INPUT_LAYER = "INPUT_LAYER"
 
-    INPUT_LAYER = 'INPUT_LAYER'
+    METHOD = "CALC_METHOD"
 
-    METHOD = 'CALC_METHOD'
+    RECTANGLE_LEVEL_1 = "RECTANGLE_LEVEL_1"
+    SD_CONVEX_RECT_1 = "SD_CONVEX_RECT_1"
+    SD_MBR_RECT_1 = "SD_MBR_RECT_1"
+    RECT_1_LAYER_OUTPUT = "RECT_1_LAYER_OUTPUT"
+    RECT_1_COUNT = "RECT_1_COUNT"
 
-    RECTANGLE_LEVEL_1 = 'RECTANGLE_LEVEL_1'
-    SD_CONVEX_RECT_1 = 'SD_CONVEX_RECT_1'
-    SD_MBR_RECT_1 = 'SD_MBR_RECT_1'
-    RECT_1_LAYER_OUTPUT = 'RECT_1_LAYER_OUTPUT'
-    RECT_1_COUNT = 'RECT_1_COUNT'
+    RECTANGLE_LEVEL_2 = "RECTANGLE_LEVEL_2"
+    SD_CONVEX_RECT_2 = "SD_CONVEX_RECT_2"
+    SD_MBR_RECT_2 = "SD_MBR_RECT_2"
+    RECT_2_LAYER_OUTPUT = "RECT_2_LAYER_OUTPUT"
+    RECT_2_COUNT = "RECT_2_COUNT"
 
-    RECTANGLE_LEVEL_2 = 'RECTANGLE_LEVEL_2'
-    SD_CONVEX_RECT_2 = 'SD_CONVEX_RECT_2'
-    SD_MBR_RECT_2 = 'SD_MBR_RECT_2'
-    RECT_2_LAYER_OUTPUT = 'RECT_2_LAYER_OUTPUT'
-    RECT_2_COUNT = 'RECT_2_COUNT'
+    RECTANGLE_LEVEL_3 = "RECTANGLE_LEVEL_3"
+    SD_CONVEX_RECT_3 = "SD_CONVEX_RECT_3"
+    SD_MBR_RECT_3 = "SD_MBR_RECT_3"
+    RECT_3_LAYER_OUTPUT = "RECT_3_LAYER_OUTPUT"
+    RECT_3_COUNT = "RECT_3_COUNT"
 
-    RECTANGLE_LEVEL_3 = 'RECTANGLE_LEVEL_3'
-    SD_CONVEX_RECT_3 = 'SD_CONVEX_RECT_3'
-    SD_MBR_RECT_3 = 'SD_MBR_RECT_3'
-    RECT_3_LAYER_OUTPUT = 'RECT_3_LAYER_OUTPUT'
-    RECT_3_COUNT = 'RECT_3_COUNT'
+    RECTANGULAR_GROUP = "RECTANGULAR_GROUP"
+    RECTANGULAR_GROUP_LAYER_INPUT = "RECTANGULAR_GROUP_LAYER_INPUT"
+    SD_CONVEX_RECT_GROUP = "SD_CONVEX_RECT_GROUP"
+    SD_MBR_RECT_GROUP = "SD_MBR_RECT_GROUP"
+    RECT_GROUP_LAYER_OUTPUT = "RECT_GROUP_LAYER_OUTPUT"
 
-    RECTANGULAR_GROUP = 'RECTANGULAR_GROUP'
-    RECTANGULAR_GROUP_LAYER_INPUT = 'RECTANGULAR_GROUP_LAYER_INPUT'
-    SD_CONVEX_RECT_GROUP = 'SD_CONVEX_RECT_GROUP'
-    SD_MBR_RECT_GROUP = 'SD_MBR_RECT_GROUP'
-    RECT_GROUP_LAYER_OUTPUT = 'RECT_GROUP_LAYER_OUTPUT'
-
-    CIRCULAR_SHAPE = 'CIRCULAR_SHAPE'
-    MILLER_INDEX = 'MILLER_INDEX'
-    CIRCULAR_LAYER_OUTPUT = 'CIRCULAR_LAYER_OUTPUT'
+    CIRCULAR_SHAPE = "CIRCULAR_SHAPE"
+    MILLER_INDEX = "MILLER_INDEX"
+    CIRCULAR_LAYER_OUTPUT = "CIRCULAR_LAYER_OUTPUT"
 
     def help(self):
-        return self.tr('Rectangular characterisation')
+        return self.tr("Rectangular characterisation")
 
     def group(self):
-        return self.tr('MorphAL')
+        return self.tr("MorphAL")
 
     def groupId(self):
-        return 'morphal'
+        return "morphal"
 
     def __init__(self):
         super().__init__()
-        self.calc_methods = [self.tr('Layer CRS'),
-                             self.tr('Project CRS'),
-                             self.tr('Ellipsoidal')]
+        self.calc_methods = [
+            self.tr("Layer CRS"),
+            self.tr("Project CRS"),
+            self.tr("Ellipsoidal"),
+        ]
 
     def initAlgorithm(self, config=None):
         self.addParameter(
             QgsProcessingParameterFeatureSource(
                 self.INPUT_LAYER,
-                self.tr('Input layer'),
-                types=[QgsProcessing.TypeVectorPolygon]
+                self.tr("Input layer"),
+                types=[QgsProcessing.TypeVectorPolygon],
             )
         )
 
         self.addParameter(
             QgsProcessingParameterEnum(
                 self.METHOD,
-                self.tr('Calculate using'),
+                self.tr("Calculate using"),
                 options=self.calc_methods,
-                defaultValue=0
+                defaultValue=0,
             )
         )
 
@@ -123,36 +113,40 @@ class MorphALRectangularCharacterisation(PTM4QgisAlgorithm):
         self.addParameter(
             QgsProcessingParameterBoolean(
                 self.RECTANGLE_LEVEL_1,
-                self.tr('Detection of rectangular shapes - Level 1'),
-                defaultValue=True
+                self.tr("Detection of rectangular shapes - Level 1"),
+                defaultValue=True,
             )
         )
 
         self.addParameter(
             QgsProcessingParameterNumber(
                 self.SD_CONVEX_RECT_1,
-                self.tr('Surface distance with convex hull (level 1)'),
+                self.tr("Surface distance with convex hull (level 1)"),
                 type=QgsProcessingParameterNumber.Double,
-                minValue=0.0, maxValue=1.0, defaultValue=0.05
+                minValue=0.0,
+                maxValue=1.0,
+                defaultValue=0.05,
             )
         )
 
         self.addParameter(
             QgsProcessingParameterNumber(
                 self.SD_MBR_RECT_1,
-                self.tr('Surface distance with MBR (level 1)'),
+                self.tr("Surface distance with MBR (level 1)"),
                 type=QgsProcessingParameterNumber.Double,
-                minValue=0.0, maxValue=1.0, defaultValue=0.05
+                minValue=0.0,
+                maxValue=1.0,
+                defaultValue=0.05,
             )
         )
 
         self.addParameter(
             QgsProcessingParameterFeatureSink(
                 self.RECT_1_LAYER_OUTPUT,
-                self.tr('Rectangles - level 1'),
+                self.tr("Rectangles - level 1"),
                 QgsProcessing.TypeVectorAnyGeometry,
                 None,
-                True
+                True,
             )
         )
 
@@ -160,36 +154,40 @@ class MorphALRectangularCharacterisation(PTM4QgisAlgorithm):
         self.addParameter(
             QgsProcessingParameterBoolean(
                 self.RECTANGLE_LEVEL_2,
-                self.tr('Detection of rectangular shapes - Level 2'),
-                defaultValue=True
+                self.tr("Detection of rectangular shapes - Level 2"),
+                defaultValue=True,
             )
         )
 
         self.addParameter(
             QgsProcessingParameterNumber(
                 self.SD_CONVEX_RECT_2,
-                self.tr('Surface distance with convex hull (level 2)'),
+                self.tr("Surface distance with convex hull (level 2)"),
                 type=QgsProcessingParameterNumber.Double,
-                minValue=0.0, maxValue=1.0, defaultValue=0.1
+                minValue=0.0,
+                maxValue=1.0,
+                defaultValue=0.1,
             )
         )
 
         self.addParameter(
             QgsProcessingParameterNumber(
                 self.SD_MBR_RECT_2,
-                self.tr('Surface distance with MBR (level 2)'),
+                self.tr("Surface distance with MBR (level 2)"),
                 type=QgsProcessingParameterNumber.Double,
-                minValue=0.0, maxValue=1.0, defaultValue=0.1
+                minValue=0.0,
+                maxValue=1.0,
+                defaultValue=0.1,
             )
         )
 
         self.addParameter(
             QgsProcessingParameterFeatureSink(
                 self.RECT_2_LAYER_OUTPUT,
-                self.tr('Rectangles - level 2'),
+                self.tr("Rectangles - level 2"),
                 QgsProcessing.TypeVectorAnyGeometry,
                 None,
-                True
+                True,
             )
         )
 
@@ -197,36 +195,40 @@ class MorphALRectangularCharacterisation(PTM4QgisAlgorithm):
         self.addParameter(
             QgsProcessingParameterBoolean(
                 self.RECTANGLE_LEVEL_3,
-                self.tr('Detection of rectangular shapes - Level 3'),
-                defaultValue=True
+                self.tr("Detection of rectangular shapes - Level 3"),
+                defaultValue=True,
             )
         )
 
         self.addParameter(
             QgsProcessingParameterNumber(
                 self.SD_CONVEX_RECT_3,
-                self.tr('Surface distance with convex hull (level 3)'),
+                self.tr("Surface distance with convex hull (level 3)"),
                 type=QgsProcessingParameterNumber.Double,
-                minValue=0.0, maxValue=1.0, defaultValue=0.15
+                minValue=0.0,
+                maxValue=1.0,
+                defaultValue=0.15,
             )
         )
 
         self.addParameter(
             QgsProcessingParameterNumber(
                 self.SD_MBR_RECT_3,
-                self.tr('Surface distance with MBR (level 3)'),
+                self.tr("Surface distance with MBR (level 3)"),
                 type=QgsProcessingParameterNumber.Double,
-                minValue=0.0, maxValue=1.0, defaultValue=0.15
+                minValue=0.0,
+                maxValue=1.0,
+                defaultValue=0.15,
             )
         )
 
         self.addParameter(
             QgsProcessingParameterFeatureSink(
                 self.RECT_3_LAYER_OUTPUT,
-                self.tr('Rectangles - level 3'),
+                self.tr("Rectangles - level 3"),
                 QgsProcessing.TypeVectorAnyGeometry,
                 None,
-                True
+                True,
             )
         )
 
@@ -240,14 +242,12 @@ class MorphALRectangularCharacterisation(PTM4QgisAlgorithm):
         # MILLER_INDEX = 'MILLER_INDEX'
         # CIRCULAR_LAYER_OUTPUT = 'CIRCULAR_LAYER_OUTPUT'
 
-
     def name(self):
-        return 'morphalrectangularcharacterisation'
+        return "morphalrectangularcharacterisation"
 
     def displayName(self):
         # TODO IMPROVE
-        return self.tr('Rectangular characterisation')
-
+        return self.tr("Rectangular characterisation")
 
     def processAlgorithm(self, parameters, context, feedback):
         # ignore_ring_self_intersection = self.parameterAsBoolean(parameters, self.IGNORE_RING_SELF_INTERSECTION, context)
@@ -267,55 +267,98 @@ class MorphALRectangularCharacterisation(PTM4QgisAlgorithm):
     def process(self, method, parameters, context, feedback):
         # flags = QgsGeometry.FlagAllowSelfTouchingHoles if ignore_ring_self_intersection else QgsGeometry.ValidityFlags()
 
-        rect_level_1 = self.parameterAsBoolean(parameters, self.RECTANGLE_LEVEL_1, context)
-        sd_convex_level_1 = self.parameterAsDouble(parameters, self.SD_CONVEX_RECT_1, context)
+        rect_level_1 = self.parameterAsBoolean(
+            parameters, self.RECTANGLE_LEVEL_1, context
+        )
+        sd_convex_level_1 = self.parameterAsDouble(
+            parameters, self.SD_CONVEX_RECT_1, context
+        )
         sd_mbr_level_1 = self.parameterAsDouble(parameters, self.SD_MBR_RECT_1, context)
 
-        rect_level_2 = self.parameterAsBoolean(parameters, self.RECTANGLE_LEVEL_2, context)
-        sd_convex_level_2 = self.parameterAsDouble(parameters, self.SD_CONVEX_RECT_2, context)
+        rect_level_2 = self.parameterAsBoolean(
+            parameters, self.RECTANGLE_LEVEL_2, context
+        )
+        sd_convex_level_2 = self.parameterAsDouble(
+            parameters, self.SD_CONVEX_RECT_2, context
+        )
         sd_mbr_level_2 = self.parameterAsDouble(parameters, self.SD_MBR_RECT_2, context)
 
-        rect_level_3 = self.parameterAsBoolean(parameters, self.RECTANGLE_LEVEL_3, context)
-        sd_convex_level_3 = self.parameterAsDouble(parameters, self.SD_CONVEX_RECT_3, context)
+        rect_level_3 = self.parameterAsBoolean(
+            parameters, self.RECTANGLE_LEVEL_3, context
+        )
+        sd_convex_level_3 = self.parameterAsDouble(
+            parameters, self.SD_CONVEX_RECT_3, context
+        )
         sd_mbr_level_3 = self.parameterAsDouble(parameters, self.SD_MBR_RECT_3, context)
 
         source = self.parameterAsSource(parameters, self.INPUT_LAYER, context)
         if source is None:
-            raise QgsProcessingException(self.invalidSourceError(parameters, self.INPUT_LAYER))
+            raise QgsProcessingException(
+                self.invalidSourceError(parameters, self.INPUT_LAYER)
+            )
 
         fields = source.fields()
         new_fields = QgsFields()
-        new_fields.append(QgsField('SD_CONVEX', QVariant.Double))
-        new_fields.append(QgsField('SD_MBR', QVariant.Double))
+        new_fields.append(QgsField("SD_CONVEX", QVariant.Double))
+        new_fields.append(QgsField("SD_MBR", QVariant.Double))
 
-        new_fields.append(QgsField('ORIENT_REC', QVariant.Double))
-        new_fields.append(QgsField('MILLER_IND', QVariant.Double))
-        new_fields.append(QgsField('CIRCLE', QVariant.Bool))
+        new_fields.append(QgsField("ORIENT_REC", QVariant.Double))
+        new_fields.append(QgsField("MILLER_IND", QVariant.Double))
+        new_fields.append(QgsField("CIRCLE", QVariant.Bool))
 
         fields = QgsProcessingUtils.combineFields(fields, new_fields)
 
-        (rect_1_output_sink, rect_1_output_dest_id) = self.parameterAsSink(parameters, self.RECT_1_LAYER_OUTPUT, context,
-                                                                           fields, source.wkbType(), source.sourceCrs())
+        (rect_1_output_sink, rect_1_output_dest_id) = self.parameterAsSink(
+            parameters,
+            self.RECT_1_LAYER_OUTPUT,
+            context,
+            fields,
+            source.wkbType(),
+            source.sourceCrs(),
+        )
+
         rect_1_count = 0
         if rect_1_output_sink is None:
-            raise QgsProcessingException(self.invalidSinkError(parameters, self.RECT_1_LAYER_OUTPUT))
+            raise QgsProcessingException(
+                self.invalidSinkError(parameters, self.RECT_1_LAYER_OUTPUT)
+            )
 
+        (rect_2_output_sink, rect_2_output_dest_id) = self.parameterAsSink(
+            parameters,
+            self.RECT_2_LAYER_OUTPUT,
+            context,
+            fields,
+            source.wkbType(),
+            source.sourceCrs(),
+        )
 
-        (rect_2_output_sink, rect_2_output_dest_id) = self.parameterAsSink(parameters, self.RECT_2_LAYER_OUTPUT, context,
-                                                                           fields, source.wkbType(), source.sourceCrs())
         rect_2_count = 0
         if rect_2_output_sink is None:
-            raise QgsProcessingException(self.invalidSinkError(parameters, self.RECT_2_LAYER_OUTPUT))
+            raise QgsProcessingException(
+                self.invalidSinkError(parameters, self.RECT_2_LAYER_OUTPUT)
+            )
 
-        (rect_3_output_sink, rect_3_output_dest_id) = self.parameterAsSink(parameters, self.RECT_3_LAYER_OUTPUT, context,
-                                                                           fields, source.wkbType(), source.sourceCrs())
+        (rect_3_output_sink, rect_3_output_dest_id) = self.parameterAsSink(
+            parameters,
+            self.RECT_3_LAYER_OUTPUT,
+            context,
+            fields,
+            source.wkbType(),
+            source.sourceCrs(),
+        )
+
         rect_3_count = 0
         if rect_3_output_sink is None:
-            raise QgsProcessingException(self.invalidSinkError(parameters, self.RECT_3_LAYER_OUTPUT))
+            raise QgsProcessingException(
+                self.invalidSinkError(parameters, self.RECT_3_LAYER_OUTPUT)
+            )
 
         distance_area = QgsDistanceArea()
 
-        features = source.getFeatures(QgsFeatureRequest(), QgsProcessingFeatureSource.FlagSkipGeometryValidityChecks)
+        features = source.getFeatures(
+            QgsFeatureRequest(),
+            QgsProcessingFeatureSource.FlagSkipGeometryValidityChecks,
+        )
         total = 100.0 / source.featureCount() if source.featureCount() else 0
         for current, f in enumerate(features):
             if feedback.isCanceled():
@@ -328,11 +371,21 @@ class MorphALRectangularCharacterisation(PTM4QgisAlgorithm):
             mbr_orientation = -1.0
 
             if not geom.isNull() and not geom.isEmpty():
-                sd_convex_hull, sd_mbr, mbr_orientation = is_rectangle_indices(geom, distance_area)
+                sd_convex_hull, sd_mbr, mbr_orientation = is_rectangle_indices(
+                    geom, distance_area
+                )
                 # index_rect = is_rectangle_indices(geom, sd_convex_level_1, sd_mbr_level_1, distance_area)
                 index_compact = compactedness_index(geom, distance_area)
                 index_circle = is_circle(geom, 0.1, distance_area)
-                attrs.extend([sd_convex_hull, sd_mbr, mbr_orientation, index_compact, index_circle])
+                attrs.extend(
+                    [
+                        sd_convex_hull,
+                        sd_mbr,
+                        mbr_orientation,
+                        index_compact,
+                        index_circle,
+                    ]
+                )
 
             if len(attrs) < len(fields):
                 attrs += [NULL] * (len(fields) - len(attrs))
@@ -343,20 +396,34 @@ class MorphALRectangularCharacterisation(PTM4QgisAlgorithm):
                 outFeat.setAttributes(attrs)
 
                 if sd_convex_hull != -2.0:
-
                     if rect_level_1:
-                        if sd_convex_hull <= sd_convex_level_1 and sd_mbr <= sd_mbr_level_1:
-                            rect_1_output_sink.addFeature(outFeat, QgsFeatureSink.FastInsert)
+                        if (
+                            sd_convex_hull <= sd_convex_level_1
+                            and sd_mbr <= sd_mbr_level_1
+                        ):
+                            rect_1_output_sink.addFeature(
+                                outFeat, QgsFeatureSink.FastInsert
+                            )
                             rect_1_count += 1
                         else:
                             if rect_level_2:
-                                if sd_convex_hull <= sd_convex_level_2 and sd_mbr <= sd_mbr_level_2:
-                                    rect_2_output_sink.addFeature(outFeat, QgsFeatureSink.FastInsert)
+                                if (
+                                    sd_convex_hull <= sd_convex_level_2
+                                    and sd_mbr <= sd_mbr_level_2
+                                ):
+                                    rect_2_output_sink.addFeature(
+                                        outFeat, QgsFeatureSink.FastInsert
+                                    )
                                     rect_2_count += 1
                                 else:
                                     if rect_level_3:
-                                        if sd_convex_hull <= sd_convex_level_3 and sd_mbr <= sd_mbr_level_3:
-                                            rect_3_output_sink.addFeature(outFeat, QgsFeatureSink.FastInsert)
+                                        if (
+                                            sd_convex_hull <= sd_convex_level_3
+                                            and sd_mbr <= sd_mbr_level_3
+                                        ):
+                                            rect_3_output_sink.addFeature(
+                                                outFeat, QgsFeatureSink.FastInsert
+                                            )
                                             rect_3_count += 1
 
             feedback.setProgress(int(current * total))
@@ -364,7 +431,7 @@ class MorphALRectangularCharacterisation(PTM4QgisAlgorithm):
         results = {
             self.RECT_1_COUNT: rect_1_count,
             self.RECT_2_COUNT: rect_2_count,
-            self.RECT_3_COUNT: rect_3_count
+            self.RECT_3_COUNT: rect_3_count,
         }
 
         if rect_1_output_sink:
