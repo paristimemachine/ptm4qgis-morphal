@@ -19,7 +19,6 @@
 
 from qgis.core import (
     NULL,
-    QgsApplication,
     QgsFeature,
     QgsFeatureRequest,
     QgsFeatureSink,
