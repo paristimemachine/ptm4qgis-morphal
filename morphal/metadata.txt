@@ -1,7 +1,7 @@
 [general]
 name=PTM-MorphAL
 qgisMinimumVersion=3.8
-qgisMinimumVersion=3.99
+qgisMaximumVersion=3.99
 description=Description description
 
 version=1.0.0
