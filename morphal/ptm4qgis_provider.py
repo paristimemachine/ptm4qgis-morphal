@@ -26,11 +26,19 @@ from .core.morphal_segment_orientation import MorphALSegmentOrientation
 
 
 class PTM4QgisProvider(QgsProcessingProvider):
+
     def __init__(self):
         """
         Default constructor.
         """
         QgsProcessingProvider.__init__(self)
+
+        self.algorithms_list = [
+            MorphALPolygonPerimeterArea(),
+            MorphALGeometryToSegments(),
+            MorphALSegmentOrientation(),
+            MorphALRectangularCharacterisation(),
+        ]
 
     def unload(self):
         """
@@ -43,10 +51,8 @@ class PTM4QgisProvider(QgsProcessingProvider):
         """
         Loads all algorithms belonging to this provider.
         """
-        self.addAlgorithm(MorphALPolygonPerimeterArea())
-        self.addAlgorithm(MorphALGeometryToSegments())
-        self.addAlgorithm(MorphALSegmentOrientation())
-        self.addAlgorithm(MorphALRectangularCharacterisation())
+        for alg in self.algorithms_list:
+            self.addAlgorithm(alg)
 
     def id(self):
         """
@@ -63,7 +69,7 @@ class PTM4QgisProvider(QgsProcessingProvider):
 
         This string should be short (e.g. "Lastools") and localised.
         """
-        return self.tr("PTM")
+        return self.tr("PTM-MorphAL")
 
     def icon(self):
         """
