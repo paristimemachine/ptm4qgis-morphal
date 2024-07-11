@@ -224,19 +224,31 @@ class MorphALRectangularCharacterisation(PTM4QgisAlgorithm):
                 True,
             )
         )
-
+        
         # RECTANGULAR_GROUP = 'RECTANGULAR_GROUP'
         # RECTANGULAR_GROUP_LAYER_INPUT = 'RECTANGULAR_GROUP_LAYER_INPUT'
         # SD_CONVEX_RECT_GROUP = 'SD_CONVEX_RECT_GROUP'
         # SD_MBR_RECT_GROUP = 'SD_MBR_RECT_GROUP'
         # RECT_GROUP_LAYER_OUTPUT = 'RECT_GROUP_LAYER_OUTPUT'
-        #
+
         # CIRCULAR_SHAPE = 'CIRCULAR_SHAPE'
         # MILLER_INDEX = 'MILLER_INDEX'
         # CIRCULAR_LAYER_OUTPUT = 'CIRCULAR_LAYER_OUTPUT'
 
+        # CIRCLE
+        self.addParameter(
+            QgsProcessingParameterNumber(
+                self.MILLER_INDEX,
+                self.tr("Circularity threshold"),
+                type=QgsProcessingParameterNumber.Double,
+                minValue=0.0,
+                maxValue=1.0,
+                defaultValue=0.9,
+            )
+        )
+
     def name(self):
-        return "morphalrectangularcharacterisation"
+        return "rectangular_characterisation"
 
     def displayName(self):
         # TODO IMPROVE
@@ -283,6 +295,10 @@ class MorphALRectangularCharacterisation(PTM4QgisAlgorithm):
             parameters, self.SD_CONVEX_RECT_3, context
         )
         sd_mbr_level_3 = self.parameterAsDouble(parameters, self.SD_MBR_RECT_3, context)
+
+        miller_index_threshold = self.parameterAsDouble(
+            parameters, self.MILLER_INDEX, context
+        )
 
         source = self.parameterAsSource(parameters, self.INPUT_LAYER, context)
         if source is None:
@@ -369,7 +385,7 @@ class MorphALRectangularCharacterisation(PTM4QgisAlgorithm):
                 )
                 # index_rect = is_rectangle_indices(geom, sd_convex_level_1, sd_mbr_level_1, distance_area)
                 index_compact = compactedness_index(geom, distance_area)
-                index_circle = is_circle(geom, 0.1, distance_area)
+                index_circle = is_circle(geom, miller_index_threshold, distance_area)
                 attrs.extend(
                     [
                         sd_convex_hull,
