@@ -39,7 +39,8 @@ from qgis.PyQt.QtCore import QVariant
 
 from morphal.ptm4qgis_algorithm import PTM4QgisAlgorithm
 
-from . import morphal_geometry_utils as mg_utils
+from . import morphal_geometry_utils as geometry_utils
+from .utils import LayerRenamer
 
 
 class MorphALRectangularCharacterisation(PTM4QgisAlgorithm):
@@ -226,7 +227,7 @@ class MorphALRectangularCharacterisation(PTM4QgisAlgorithm):
                 True,
             )
         )
-        
+
         # RECTANGULAR_GROUP = 'RECTANGULAR_GROUP'
         # RECTANGULAR_GROUP_LAYER_INPUT = 'RECTANGULAR_GROUP_LAYER_INPUT'
         # SD_CONVEX_RECT_GROUP = 'SD_CONVEX_RECT_GROUP'
@@ -273,7 +274,9 @@ class MorphALRectangularCharacterisation(PTM4QgisAlgorithm):
 
     def process(self, method, parameters, context, feedback):
         # flags = QgsGeometry.FlagAllowSelfTouchingHoles if ignore_ring_self_intersection else QgsGeometry.ValidityFlags()
-        
+
+        source_layer = self.parameterAsLayer(parameters, self.INPUT_LAYER, context)
+
         rect_level_1 = self.parameterAsBoolean(
             parameters, self.RECTANGLE_LEVEL_1, context
         )
@@ -383,7 +386,7 @@ class MorphALRectangularCharacterisation(PTM4QgisAlgorithm):
             mbr_orientation = -1.0
 
             if not geom.isNull() and not geom.isEmpty():
-                sd_convex_hull, sd_mbr, mbr_orientation = mg_utils.is_rectangle_indices(
+                sd_convex_hull, sd_mbr, mbr_orientation = geometry_utils.is_rectangle_indices(
                     geom, distance_area
                 )
                 # index_rect = is_rectangle_indices(
@@ -392,9 +395,9 @@ class MorphALRectangularCharacterisation(PTM4QgisAlgorithm):
                 #     sd_mbr_level_1,
                 #     distance_area
                 # )
-                index_compact = mg_utils.compactedness_index(geom, distance_area)
-                index_circle = mg_utils.is_circle(geom, miller_index_threshold, distance_area)
-                elongation = mg_utils.polygon_elongation(geom)
+                index_compact = geometry_utils.compactedness_index(geom, distance_area)
+                index_circle = geometry_utils.is_circle(geom, miller_index_threshold, distance_area)
+                elongation = geometry_utils.polygon_elongation(geom)
                 attrs.extend(
                     [
                         sd_convex_hull,
@@ -452,6 +455,35 @@ class MorphALRectangularCharacterisation(PTM4QgisAlgorithm):
             self.RECT_2_COUNT: rect_2_count,
             self.RECT_3_COUNT: rect_3_count,
         }
+
+        global rect_1_renamer, rect_2_renamer, rect_3_renamer
+
+        rect_1_newname = '{}-Rectangles-Level_1-{}-{}'.format(
+            source_layer.name(),
+            sd_convex_level_1,
+            sd_mbr_level_1
+        )
+        rect_1_renamer = LayerRenamer(rect_1_newname)
+        context.layerToLoadOnCompletionDetails(
+            rect_1_output_dest_id).setPostProcessor(rect_1_renamer)
+
+        rect_2_newname = '{}-Rectangles-Level_2-{}-{}'.format(
+            source_layer.name(),
+            sd_convex_level_2,
+            sd_mbr_level_2
+        )
+        rect_2_renamer = LayerRenamer(rect_2_newname)
+        context.layerToLoadOnCompletionDetails(
+            rect_2_output_dest_id).setPostProcessor(rect_2_renamer)
+
+        rect_3_newname = '{}-Rectangles-Level_3-{}-{}'.format(
+            source_layer.name(),
+            sd_convex_level_3,
+            sd_mbr_level_3
+        )
+        rect_3_renamer = LayerRenamer(rect_3_newname)
+        context.layerToLoadOnCompletionDetails(
+            rect_3_output_dest_id).setPostProcessor(rect_3_renamer)
 
         if rect_1_output_sink:
             results[self.RECT_1_LAYER_OUTPUT] = rect_1_output_dest_id
