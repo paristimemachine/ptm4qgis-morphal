@@ -21,6 +21,8 @@ import math
 
 from qgis.core import QgsDistanceArea, QgsGeometry, QgsLineString, QgsPoint, QgsPolygon
 
+from .utils import round_down_float_to_3_decimals
+
 
 def points_comparison(p1: QgsPoint, p2: QgsPoint):
     if p1.x() < p2.x():
@@ -386,6 +388,6 @@ def angle(
 
         # accuracy
         if accuracy:
-            angle_x = round(angle_x, 3)
+            angle_x = round_down_float_to_3_decimals(angle_x)
 
         return angle_x
