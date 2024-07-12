@@ -185,24 +185,24 @@ def is_circle(
 ):
     """
     Compute if a polygon (QgsPolygon) has a circular shape or not, based on
-    the compactedness index or Miller's index (if Miller's index equals 1,
+    the compactness index or Miller's index (if Miller's index equals 1,
     it means that the shape is a perfect circle). iMillerThreshold is the
     minimum threshold for Miller's index. Returns true if the polygon shape
     is a circle, false otherwise.
     """
 
-    if compactedness_miller_index(polygon, distance_area) >= miller_index_threshold:
+    if compactness_miller_index(polygon, distance_area) >= miller_index_threshold:
         return True
 
     return False
 
 
-def compactedness_miller_index(
+def compactness_miller_index(
         polygon: QgsPolygon,
         distance_area: QgsDistanceArea
 ):
     """
-    Compute the compactedness index of a polygon (QgsPolygon),
+    Compute the compactness index of a polygon (QgsPolygon),
     based on Miller's index, 4.Pi.area / perimeter^2.
     """
 
@@ -215,6 +215,27 @@ def compactedness_miller_index(
         return 0.0
     area = distance_area.measureArea(polygon)
     return 4 * math.pi * area / math.pow(perimeter, 2)
+
+
+def compactness_gravelius_index(
+        polygon: QgsPolygon,
+        distance_area: QgsDistanceArea
+):
+    """
+    Compute the compactness index of a polygon (QgsPolygon),
+    based on Gravelius' index, perimeter / 2.sqrt(Pi.area)
+    """
+
+    # TODO ? test if geometry is null / empty ?
+    if _geometry_num_vertices(polygon) < 4:
+        return 0.0
+
+    perimeter = distance_area.measurePerimeter(polygon)
+    area = distance_area.measureArea(polygon)
+
+    if perimeter == 0 or area == 0:
+        return 0.0
+    return perimeter / (2 * math.sqrt(math.pi * area))
 
 
 def is_rectangle(
