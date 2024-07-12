@@ -413,9 +413,9 @@ class MorphALRectangularCharacterisation(PTM4QgisAlgorithm):
                 attrs += [NULL] * (len(fields) - len(attrs))
 
             if mbr_orientation != -1.0:
-                outFeat = QgsFeature()
-                outFeat.setGeometry(geom)
-                outFeat.setAttributes(attrs)
+                out_feat = QgsFeature()
+                out_feat.setGeometry(geom)
+                out_feat.setAttributes(attrs)
 
                 if sd_convex_hull != -2.0:
                     if rect_level_1:
@@ -424,7 +424,7 @@ class MorphALRectangularCharacterisation(PTM4QgisAlgorithm):
                             and sd_mbr <= sd_mbr_level_1
                         ):
                             rect_1_output_sink.addFeature(
-                                outFeat, QgsFeatureSink.FastInsert
+                                out_feat, QgsFeatureSink.FastInsert
                             )
                             rect_1_count += 1
                         else:
@@ -434,7 +434,7 @@ class MorphALRectangularCharacterisation(PTM4QgisAlgorithm):
                                     and sd_mbr <= sd_mbr_level_2
                                 ):
                                     rect_2_output_sink.addFeature(
-                                        outFeat, QgsFeatureSink.FastInsert
+                                        out_feat, QgsFeatureSink.FastInsert
                                     )
                                     rect_2_count += 1
                                 else:
@@ -444,7 +444,7 @@ class MorphALRectangularCharacterisation(PTM4QgisAlgorithm):
                                             and sd_mbr <= sd_mbr_level_3
                                         ):
                                             rect_3_output_sink.addFeature(
-                                                outFeat, QgsFeatureSink.FastInsert
+                                                out_feat, QgsFeatureSink.FastInsert
                                             )
                                             rect_3_count += 1
 
