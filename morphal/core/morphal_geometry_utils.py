@@ -211,18 +211,18 @@ def is_rectangle(
     distance_area: QgsDistanceArea,
 ):
     """
-    Compute if a {@link Polygon} has a rectangular shape or not, based on the comparison
-    with two shapes: the shape of the minimum bounding rectangle of the {@link Polygon},
-    and the shape of the convex hull associated to the {@link Polygon}. This comparison
+    Compute if a Polygon has a rectangular shape or not, based on the comparison
+    with two shapes: the shape of the minimum bounding rectangle of the Polygon,
+    and the shape of the convex hull associated to the Polygon. This comparison
     is computed thanks to two thresholds (threshold of maximums), one for each associated
     shape. If the shape is rectangular, the orientation (in degrees) based on the is returned;
     otherwise, the value of -1.0 is returned. Finally, if the returned value equals -2.0,
     it means that the MBR can not be computed.
 
-    @param polygon polygon to process
-    @param sd_convex_hull_threshold maximum threshold for surface distance between the polygon and its convex hull
-    @param sd_mbr_threshold maximum threshold for surface distance between the polygon and its associated minimum bounding rectangle
-    @return the orientation in degrees of the polygon, based on the orientation of the associated minimum bounding rectangle,
+    :param polygon: polygon to process
+    :param sd_convex_hull_threshold: maximum threshold for surface distance between the polygon and its convex hull
+    :param sd_mbr_threshold: maximum threshold for surface distance between the polygon and its associated minimum bounding rectangle
+    :return: the orientation in degrees of the polygon, based on the orientation of the associated minimum bounding rectangle,
     -1.0 if the polygon shape is not defined as a rectangle, and -2.0 if the convex hull or MBR can not be computed
     """
 
@@ -247,19 +247,21 @@ def is_rectangle(
 
 def is_rectangle_indices(polygon: QgsPolygon, distance_area: QgsDistanceArea):
     """
-    Compute if a {@link Polygon} has a rectangular shape or not, based on the comparison
-    with two shapes: the shape of the minimum bounding rectangle of the {@link Polygon},
-    and the shape of the convex hull associated to the {@link Polygon}. This comparison
+    Compute if a polygon has a rectangular shape or not, based on the comparison
+    with two shapes: the shape of the minimum bounding rectangle of the polygon,
+    and the shape of the convex hull associated to the polygon. This comparison
     is computed thanks to two thresholds (threshold of maximums), one for each associated
     shape. If the shape is rectangular, the orientation (in degrees) based on the is returned;
     otherwise, the value of -1.0 is returned. Finally, if the returned value equals -2.0,
     it means that the MBR can not be computed.
 
-    @param polygon polygon to process
-    @param sd_convex_hull_threshold maximum threshold for surface distance between the polygon and its convex hull
-    @param sd_mbr_threshold maximum threshold for surface distance between the polygon and its associated minimum bounding rectangle
-    @return the orientation in degrees of the polygon, based on the orientation of the associated minimum bounding rectangle,
-    -1.0 if the polygon shape is not defined as a rectangle, and -2.0 if the convex hull or MBR can not be computed
+    :param QgsPolygon polygon: polygon to process
+    :param QgsDistanceArea distance_area: distance area
+    :return:
+      - the surface distance between the polygon and its convex hull,
+      - the surface distance between the polygon and its associated minimum bounding rectangle,
+      - the orientation in degrees of the polygon, based on the orientation of the associated minimum bounding rectangle,
+      -1.0 if the polygon shape is not defined as a rectangle, and -2.0 if the convex hull or MBR can not be computed
     """
 
     sd_convex_hull = -2.0
@@ -288,13 +290,14 @@ def surface_distance(
     geometry_a: QgsGeometry, geometry_b: QgsGeometry, distance_area: QgsDistanceArea
 ):
     """
-    Compute the surface distance between two {@link Geometry}s.
+    Compute the surface distance between two geometries.
     Surface distance is a number between 0 and 1, computed thanks to
     the following formula: 1 - (area(intersection) / area(union)).
 
-    @param geometryA first geometry to process
-    @param geometryB second geometry to process
-    @return the surface distance between geometry A and geometry B
+    :param QgsGeometry geometry_a: first geometry to process
+    :param QgsGeometry geometry_b: second geometry to process
+    :param QgsDistanceArea distance_area: distance area
+    :return: the surface distance between geometry A and geometry B
     """
 
     intersection = geometry_a.intersection(geometry_b)
@@ -313,16 +316,17 @@ def surface_distance(
 
 def angle(geometry: QgsGeometry, unit: int, interval: float, accuracy: bool):
     """
-    Compute the angle between 2 {@link Point}s (between 0 and PI or between O and PI/2)
+    Compute the angle between 2 points (between 0 and PI or between O and PI/2)
     comparatively to the X axis.
 
     geometry --> check
 
-        @param unit unit in degree if 0, grade if 2 (radian if something else)
-        @param interval interval [ 0 ; PI [ if 0, [ 0 ; PI/2 [ if 1,
-                        otherwise the interval [ 0 ; PI/2 [ is the default choice
-        @param accuracy true to keep two numbers after the dot, false to keep all numbers
-        @return the computed angle or None otherwise
+    :param QgsGeometry geometry: geometry to process
+    :param int unit: unit in degree if 0, grade if 2 (radian if something else)
+    :param float interval: interval [ 0 ; PI [ if 0, [ 0 ; PI/2 [ if 1,
+                    otherwise the interval [ 0 ; PI/2 [ is the default choice
+    :param bool accuracy: true to keep two numbers after the dot, false to keep all numbers
+    :return: the computed angle or None otherwise
     """
 
     num_vertices = _geometry_num_vertices(geometry)
