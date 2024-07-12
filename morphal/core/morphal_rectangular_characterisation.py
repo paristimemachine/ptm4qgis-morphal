@@ -395,7 +395,7 @@ class MorphALRectangularCharacterisation(PTM4QgisAlgorithm):
                 #     sd_mbr_level_1,
                 #     distance_area
                 # )
-                index_compact = geometry_utils.compactedness_index(geom, distance_area)
+                index_compact = geometry_utils.compactedness_miller_index(geom, distance_area)
                 index_circle = geometry_utils.is_circle(geom, miller_index_threshold, distance_area)
                 elongation = geometry_utils.polygon_elongation(geom)
                 attrs.extend(
