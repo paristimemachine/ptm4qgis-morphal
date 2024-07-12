@@ -158,7 +158,7 @@ class MorphALSegmentOrientation(PTM4QgisAlgorithm):
         )
 
     def name(self):
-        return "morphalsegmentorientation"
+        return "segment_orientation"
 
     def displayName(self):
         # TODO IMPROVE TEXT
