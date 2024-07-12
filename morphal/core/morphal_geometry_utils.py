@@ -24,26 +24,29 @@ from qgis.core import QgsDistanceArea, QgsGeometry, QgsLineString, QgsPoint, Qgs
 from .utils import round_down_float_to_3_decimals
 
 
-def points_comparison(p1: QgsPoint, p2: QgsPoint):
-    if p1.x() < p2.x():
+def points_comparison(
+        point_1: QgsPoint,
+        point_2: QgsPoint
+):
+    if point_1.x() < point_2.x():
         return -1
-    if p1.x() > p2.x():
+    if point_1.x() > point_2.x():
         return 1
-    if p1.y() < p2.y():
+    if point_1.y() < point_2.y():
         return -1
-    if p1.y() > p2.y():
+    if point_1.y() > point_2.y():
         return 1
     return 0
 
 
 def create_normalized_segment(
-        p1: QgsPoint,
-        p2: QgsPoint
+        point_1: QgsPoint,
+        point_2: QgsPoint
 ):
-    if points_comparison(p1, p2) < 0:
-        return QgsGeometry(QgsLineString([p2, p1]))
+    if points_comparison(point_1, point_2) < 0:
+        return QgsGeometry(QgsLineString([point_2, point_1]))
     else:
-        return QgsGeometry(QgsLineString([p1, p2]))
+        return QgsGeometry(QgsLineString([point_1, point_2]))
 
 
 def polygon_orientation(polygon: QgsPolygon):
