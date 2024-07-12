@@ -34,7 +34,10 @@ def points_comparison(p1: QgsPoint, p2: QgsPoint):
     return 0
 
 
-def create_normalized_segment(p1: QgsPoint, p2: QgsPoint):
+def create_normalized_segment(
+        p1: QgsPoint,
+        p2: QgsPoint
+):
     if points_comparison(p1, p2) < 0:
         return QgsGeometry(QgsLineString([p2, p1]))
     else:
@@ -110,17 +113,20 @@ def _mbr_orientation(mbr: QgsPolygon):
     length2 = v1.distanceSquared(v2.x(), v2.y())
 
     if length > length2:
-        angle = math.atan2(v0.y() - v1.y(), v0.x() - v1.x())
+        angle_x = math.atan2(v0.y() - v1.y(), v0.x() - v1.x())
     else:
-        angle = math.atan2(v1.y() - v2.y(), v1.x() - v2.x())
+        angle_x = math.atan2(v1.y() - v2.y(), v1.x() - v2.x())
 
-    if angle < 0:
-        angle += math.pi
+    if angle_x < 0:
+        angle_x += math.pi
 
-    return angle * 180.0 / math.pi
+    return angle_x * 180.0 / math.pi
 
 
-def _geometry_vertices(geometry: QgsGeometry, index: int):
+def _geometry_vertices(
+        geometry: QgsGeometry,
+        index: int
+):
     vertices = []
     if index < 0:
         return vertices
@@ -171,7 +177,9 @@ def polygon_elongation(polygon: QgsPolygon):
 
 
 def is_circle(
-    polygon: QgsPolygon, i_miller_threshold: float, distance_area: QgsDistanceArea
+    polygon: QgsPolygon,
+    miller_index_threshold: float,
+    distance_area: QgsDistanceArea
 ):
     """
     Compute if a polygon (QgsPolygon) has a circular shape or not, based on
@@ -181,16 +189,19 @@ def is_circle(
     is a circle, false otherwise.
     """
 
-    if compactedness_index(polygon, distance_area) >= i_miller_threshold:
+    if compactedness_miller_index(polygon, distance_area) >= miller_index_threshold:
         return True
 
     return False
 
 
-def compactedness_index(polygon: QgsPolygon, distance_area: QgsDistanceArea):
+def compactedness_miller_index(
+        polygon: QgsPolygon,
+        distance_area: QgsDistanceArea
+):
     """
-        Compute the compactedness index of a polygon (QgsPolygon),
-    i.e. Miller's index, 4.Pi.area / perimeter^2.
+    Compute the compactedness index of a polygon (QgsPolygon),
+    based on Miller's index, 4.Pi.area / perimeter^2.
     """
 
     # TODO ? test if geometry is null / empty ?
@@ -245,7 +256,10 @@ def is_rectangle(
     return -1.0
 
 
-def is_rectangle_indices(polygon: QgsPolygon, distance_area: QgsDistanceArea):
+def is_rectangle_indices(
+        polygon: QgsPolygon,
+        distance_area: QgsDistanceArea
+):
     """
     Compute if a polygon has a rectangular shape or not, based on the comparison
     with two shapes: the shape of the minimum bounding rectangle of the polygon,
@@ -287,7 +301,9 @@ def is_rectangle_indices(polygon: QgsPolygon, distance_area: QgsDistanceArea):
 
 
 def surface_distance(
-    geometry_a: QgsGeometry, geometry_b: QgsGeometry, distance_area: QgsDistanceArea
+    geometry_a: QgsGeometry,
+    geometry_b: QgsGeometry,
+    distance_area: QgsDistanceArea
 ):
     """
     Compute the surface distance between two geometries.
@@ -314,7 +330,12 @@ def surface_distance(
     return 1 - intersection_area / union_area
 
 
-def angle(geometry: QgsGeometry, unit: int, interval: float, accuracy: bool):
+def angle(
+        geometry: QgsGeometry,
+        unit: int,
+        interval: float,
+        accuracy: bool
+):
     """
     Compute the angle between 2 points (between 0 and PI or between O and PI/2)
     comparatively to the X axis.
@@ -342,29 +363,29 @@ def angle(geometry: QgsGeometry, unit: int, interval: float, accuracy: bool):
 
         x = v1.x() - v0.x()
         y = v1.y() - v0.y()
-        angle = math.atan2(y, x)
+        angle_x = math.atan2(y, x)
 
         #  [O ; Pi[
         if interval == 0:
-            if angle < 0:
-                angle = angle + math.pi
-            if angle == math.pi:
-                angle = 0.0
+            if angle_x < 0:
+                angle_x = angle_x + math.pi
+            if angle_x == math.pi:
+                angle_x = 0.0
         else:  # [O ; Pi/2[
-            if angle < 0:
-                angle = angle + math.pi
-            angle = angle % (math.pi / 2.0)
-            if angle == (math.pi / 2.0):
-                angle = 0.0
+            if angle_x < 0:
+                angle_x = angle_x + math.pi
+            angle_x = angle_x % (math.pi / 2.0)
+            if angle_x == (math.pi / 2.0):
+                angle_x = 0.0
 
         # unit conversion
         if unit == 0:  # degree
-            angle = math.degrees(angle)
+            angle_x = math.degrees(angle_x)
         elif unit == 2:  # grade
-            angle = angle * 200.0 / math.pi
+            angle_x = angle_x * 200.0 / math.pi
 
         # accuracy
         if accuracy:
-            angle = round(angle, 3)
+            angle_x = round(angle_x, 3)
 
-        return angle
+        return angle_x
