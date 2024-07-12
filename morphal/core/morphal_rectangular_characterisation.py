@@ -19,6 +19,7 @@
 
 from qgis.core import (
     NULL,
+    QgsDistanceArea,
     QgsFeature,
     QgsFeatureRequest,
     QgsFeatureSink,
@@ -36,8 +37,9 @@ from qgis.core import (
 )
 from qgis.PyQt.QtCore import QVariant
 
-from ..ptm4qgis_algorithm import PTM4QgisAlgorithm
-from .morphal_geometry_utils import *
+from morphal.ptm4qgis_algorithm import PTM4QgisAlgorithm
+
+from . import morphal_geometry_utils as mg_utils
 
 
 class MorphALRectangularCharacterisation(PTM4QgisAlgorithm):
@@ -271,7 +273,7 @@ class MorphALRectangularCharacterisation(PTM4QgisAlgorithm):
 
     def process(self, method, parameters, context, feedback):
         # flags = QgsGeometry.FlagAllowSelfTouchingHoles if ignore_ring_self_intersection else QgsGeometry.ValidityFlags()
-
+        
         rect_level_1 = self.parameterAsBoolean(
             parameters, self.RECTANGLE_LEVEL_1, context
         )
@@ -314,6 +316,7 @@ class MorphALRectangularCharacterisation(PTM4QgisAlgorithm):
         new_fields.append(QgsField("ORIENT_REC", QVariant.Double))
         new_fields.append(QgsField("MILLER_IND", QVariant.Double))
         new_fields.append(QgsField("CIRCLE", QVariant.Bool))
+        new_fields.append(QgsField("ELONGATION", QVariant.Double))
 
         fields = QgsProcessingUtils.combineFields(fields, new_fields)
 
@@ -380,12 +383,18 @@ class MorphALRectangularCharacterisation(PTM4QgisAlgorithm):
             mbr_orientation = -1.0
 
             if not geom.isNull() and not geom.isEmpty():
-                sd_convex_hull, sd_mbr, mbr_orientation = is_rectangle_indices(
+                sd_convex_hull, sd_mbr, mbr_orientation = mg_utils.is_rectangle_indices(
                     geom, distance_area
                 )
-                # index_rect = is_rectangle_indices(geom, sd_convex_level_1, sd_mbr_level_1, distance_area)
-                index_compact = compactedness_index(geom, distance_area)
-                index_circle = is_circle(geom, miller_index_threshold, distance_area)
+                # index_rect = is_rectangle_indices(
+                #     geom,
+                #     sd_convex_level_1,
+                #     sd_mbr_level_1,
+                #     distance_area
+                # )
+                index_compact = mg_utils.compactedness_index(geom, distance_area)
+                index_circle = mg_utils.is_circle(geom, miller_index_threshold, distance_area)
+                elongation = mg_utils.polygon_elongation(geom)
                 attrs.extend(
                     [
                         sd_convex_hull,
@@ -393,6 +402,7 @@ class MorphALRectangularCharacterisation(PTM4QgisAlgorithm):
                         mbr_orientation,
                         index_compact,
                         index_circle,
+                        elongation
                     ]
                 )
 
