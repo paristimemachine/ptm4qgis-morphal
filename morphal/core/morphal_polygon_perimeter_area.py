@@ -82,7 +82,7 @@ class MorphALPolygonPerimeterArea(PTM4QgisAlgorithm):
         )
 
     def name(self):
-        return "morphalpolygonperimeterarea"
+        return "polygon_perimeter_area"
 
     def displayName(self):
         # TODO IMPROVE TEXT
@@ -107,8 +107,8 @@ class MorphALPolygonPerimeterArea(PTM4QgisAlgorithm):
         fields = source.fields()
 
         new_fields = QgsFields()
-        new_fields.append(QgsField("perimeter", QVariant.Double))
-        new_fields.append(QgsField("area", QVariant.Double))
+        new_fields.append(QgsField("PERIMETER", QVariant.Double))
+        new_fields.append(QgsField("AREA", QVariant.Double))
 
         fields = QgsProcessingUtils.combineFields(fields, new_fields)
         (sink, dest_id) = self.parameterAsSink(
@@ -117,12 +117,12 @@ class MorphALPolygonPerimeterArea(PTM4QgisAlgorithm):
         if sink is None:
             raise QgsProcessingException(self.invalidSinkError(parameters, self.OUTPUT))
 
-        coordTransform = None
-
         # Calculate with:
         # 0 - layer CRS
         # 1 - project CRS
         # 2 - ellipsoidal
+
+        coord_transform = None
 
         self.distance_area = QgsDistanceArea()
         if method == 2:
@@ -135,7 +135,7 @@ class MorphALPolygonPerimeterArea(PTM4QgisAlgorithm):
                 raise QgsProcessingException(
                     self.tr("No project is available in this context")
                 )
-            coordTransform = QgsCoordinateTransform(
+            coord_transform = QgsCoordinateTransform(
                 source.sourceCrs(), context.project().crs(), context.project()
             )
 
@@ -145,14 +145,14 @@ class MorphALPolygonPerimeterArea(PTM4QgisAlgorithm):
             if feedback.isCanceled():
                 break
 
-            outFeat = f
+            out_feat = f
             attrs = f.attributes()
-            inGeom = f.geometry()
-            if inGeom:
-                if coordTransform is not None:
-                    inGeom.transform(coordTransform)
+            in_geom = f.geometry()
+            if in_geom:
+                if coord_transform is not None:
+                    in_geom.transform(coord_transform)
 
-                attrs.extend(self.polygon_attributes(inGeom))
+                attrs.extend(self.polygon_attributes(in_geom))
 
             # ensure consistent count of attributes - otherwise null
             # geometry features will have incorrect attribute length
@@ -160,8 +160,8 @@ class MorphALPolygonPerimeterArea(PTM4QgisAlgorithm):
             if len(attrs) < len(fields):
                 attrs += [NULL] * (len(fields) - len(attrs))
 
-            outFeat.setAttributes(attrs)
-            sink.addFeature(outFeat, QgsFeatureSink.FastInsert)
+            out_feat.setAttributes(attrs)
+            sink.addFeature(out_feat, QgsFeatureSink.FastInsert)
 
             feedback.setProgress(int(current * total))
 
