@@ -37,9 +37,7 @@ from qgis.core import (
 from qgis.PyQt.QtCore import QVariant
 
 from ..ptm4qgis_algorithm import PTM4QgisAlgorithm
-
-# from qgis import processing
-from .morphal_geometry_utils import *
+from . import morphal_geometry_utils as geometry_utils
 
 
 class MorphALSegmentOrientation(PTM4QgisAlgorithm):
@@ -48,8 +46,8 @@ class MorphALSegmentOrientation(PTM4QgisAlgorithm):
     INTERVAL = "INTERVAL"
     METHOD = "CALC_METHOD"
     ROUNDED = "ROUNDED"
-    HISTOGRAM = "HISTOGRAM"
-    HISTOGRAM_STEP = "HISTOGRAM_STEP"
+    # HISTOGRAM = "HISTOGRAM"
+    # HISTOGRAM_STEP = "HISTOGRAM_STEP"
     CLASSIFICATION = "CLASSIFICATION"
     CLASSIFICATION_STEP = "CLASSIFICATION_STEP"
     OUTPUT = "OUTPUT"
@@ -63,12 +61,19 @@ class MorphALSegmentOrientation(PTM4QgisAlgorithm):
         self.export_z = False
         self.export_m = False
         self.distance_area = None
-        self.units = [self.tr("Degree"), self.tr("Radian"), self.tr("Grade")]
-        self.intervals = [self.tr("[0 ; Pi["), self.tr("[0 ; Pi/2[")]
-        # self.calc_methods = [self.tr('Layer CRS'),
-        #                      self.tr('Project CRS'),
-        #                      self.tr('Ellipsoidal')]
-        self.calc_methods = [self.tr("Layer CRS"), self.tr("Project CRS")]
+        self.units = [
+            self.tr("Degree"),
+            self.tr("Radian"),
+            self.tr("Grade")
+        ]
+        self.intervals = [
+            self.tr("[0 ; Pi["),
+            self.tr("[0 ; Pi/2[")
+        ]
+        self.calc_methods = [self.tr("Layer CRS"),
+                             self.tr("Project CRS"),
+                             self.tr("Ellipsoidal")]
+        # self.calc_methods = [self.tr("Layer CRS"), self.tr("Project CRS")]
         self.errors = ""
 
     def initAlgorithm(self, config):
@@ -105,7 +110,7 @@ class MorphALSegmentOrientation(PTM4QgisAlgorithm):
         self.addParameter(
             QgsProcessingParameterBoolean(
                 self.ROUNDED,
-                self.tr("Rounded orientation result (3 digits)"),
+                self.tr("Round orientations to 3 decimals"),
                 defaultValue=True,
             )
         )
@@ -129,22 +134,22 @@ class MorphALSegmentOrientation(PTM4QgisAlgorithm):
             )
         )
 
-        self.addParameter(
-            QgsProcessingParameterBoolean(
-                self.HISTOGRAM, self.tr("Create an histogram"), defaultValue=False
-            )
-        )
+        # self.addParameter(
+        #     QgsProcessingParameterBoolean(
+        #         self.HISTOGRAM, self.tr("Create an histogram"), defaultValue=False
+        #     )
+        # )
 
-        self.addParameter(
-            QgsProcessingParameterNumber(
-                self.HISTOGRAM_STEP,
-                self.tr("Step of the histogram"),
-                type=QgsProcessingParameterNumber.Double,
-                minValue=0.001,
-                maxValue=200,
-                defaultValue=5,
-            )
-        )
+        # self.addParameter(
+        #     QgsProcessingParameterNumber(
+        #         self.HISTOGRAM_STEP,
+        #         self.tr("Step of the histogram"),
+        #         type=QgsProcessingParameterNumber.Double,
+        #         minValue=0.001,
+        #         maxValue=200,
+        #         defaultValue=5,
+        #     )
+        # )
 
         self.addParameter(
             QgsProcessingParameterFeatureSink(
@@ -171,14 +176,16 @@ class MorphALSegmentOrientation(PTM4QgisAlgorithm):
         # 1 - radian
         # 2 - grade
         unit = self.parameterAsEnum(parameters, self.UNIT, context)
+
         # Interval:
         # 0 - [0 ; Pi[
         # 1 - [0 ; Pi/2[
         interval = self.parameterAsEnum(parameters, self.INTERVAL, context)
+
         # Calculate with projection:
         # 0 - layer CRS
         # 1 - project CRS
-        # 2 - ellipsoidal (TODO: NOT USED AT THE MOMENT)
+        # 2 - ellipsoidal
         method = self.parameterAsEnum(parameters, self.METHOD, context)
 
         rounded = self.parameterAsBoolean(parameters, self.ROUNDED, context)
@@ -190,10 +197,10 @@ class MorphALSegmentOrientation(PTM4QgisAlgorithm):
             parameters, self.CLASSIFICATION_STEP, context
         )
 
-        histogram = self.parameterAsBoolean(parameters, self.HISTOGRAM, context)
-        histogram_step = self.parameterAsDouble(
-            parameters, self.HISTOGRAM_STEP, context
-        )
+        # histogram = self.parameterAsBoolean(parameters, self.HISTOGRAM, context)
+        # histogram_step = self.parameterAsDouble(
+        #     parameters, self.HISTOGRAM_STEP, context
+        # )
 
         wkb_type = source.wkbType()
 
@@ -206,9 +213,9 @@ class MorphALSegmentOrientation(PTM4QgisAlgorithm):
         fields = source.fields()
 
         new_fields = QgsFields()
-        new_fields.append(QgsField("orientation", QVariant.Double))
+        new_fields.append(QgsField("ORIENTATION", QVariant.Double))
         if classification:
-            new_fields.append(QgsField("classification", QVariant.Double))
+            new_fields.append(QgsField("CLASSIFICATION", QVariant.Double))
 
         fields = QgsProcessingUtils.combineFields(fields, new_fields)
         (sink, dest_id) = self.parameterAsSink(
@@ -220,10 +227,12 @@ class MorphALSegmentOrientation(PTM4QgisAlgorithm):
         coord_transform = None
 
         self.distance_area = QgsDistanceArea()
-        # if method == 2:
-        #     self.distance_area.setSourceCrs(source.sourceCrs(), context.transformContext())
-        #     self.distance_area.setEllipsoid(context.ellipsoid())
-        if method == 1:
+        if method == 2:
+            self.distance_area.setSourceCrs(
+                source.sourceCrs(), context.transformContext()
+            )
+            self.distance_area.setEllipsoid(context.ellipsoid())
+        elif method == 1:
             if not context.project():
                 raise QgsProcessingException(
                     self.tr("No project is available in this context")
@@ -245,7 +254,7 @@ class MorphALSegmentOrientation(PTM4QgisAlgorithm):
                 if coord_transform is not None:
                     geom.transform(coord_transform)
 
-                orientation = angle(geom, unit, interval, rounded)
+                orientation = geometry_utils.angle(geom, unit, interval, rounded)
                 if orientation is not None:
                     if classification:
                         class_int = int(orientation / classification_step)
