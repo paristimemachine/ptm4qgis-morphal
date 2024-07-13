@@ -17,6 +17,7 @@
  ***************************************************************************/
 """
 
+import processing
 from qgis.core import (
     QgsFeature,
     QgsFeatureSink,
@@ -49,25 +50,30 @@ class MorphALGeometryToSegments(PTM4QgisAlgorithm):
 
     def __init__(self):
         super().__init__()
+        self.unicity = True
 
     def initAlgorithm(self, config):
         self.addParameter(
             QgsProcessingParameterFeatureSource(
-                self.INPUT_LAYER,
-                self.tr("Input layer"),
+                name=self.INPUT_LAYER,
+                description=self.tr("Input layer"),
                 types=[QgsProcessing.TypeVectorLine, QgsProcessing.TypeVectorPolygon],
             )
         )
 
         self.addParameter(
             QgsProcessingParameterBoolean(
-                self.UNICITY, self.tr("Unicity of created segments"), True
+                name=self.UNICITY,
+                description=self.tr("Unicity of created segments"),
+                defaultValue=self.unicity
             )
         )
 
         self.addParameter(
             QgsProcessingParameterFeatureSink(
-                self.OUTPUT_LAYER, self.tr("Segments"), QgsProcessing.TypeVectorLine
+                name=self.OUTPUT_LAYER,
+                description=self.tr("Segments"),
+                type=QgsProcessing.TypeVectorLine
             )
         )
 
@@ -101,8 +107,6 @@ class MorphALGeometryToSegments(PTM4QgisAlgorithm):
                 self.tr("The layer doesn't contain any feature: no output provided")
             )
             return {}
-
-        source_layer = self.parameterAsLayer(parameters, self.INPUT_LAYER, context)
 
         # other parameters
         unicity = self.parameterAsBoolean(parameters, self.UNICITY, context)
@@ -192,7 +196,7 @@ class MorphALGeometryToSegments(PTM4QgisAlgorithm):
 
         segments_newname = ""
         segments_newname = '{}-Segments'.format(
-            source_layer.name()
+            source.sourceName()
         )
 
         if unicity:
