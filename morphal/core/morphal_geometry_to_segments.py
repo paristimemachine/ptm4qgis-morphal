@@ -27,17 +27,20 @@ from qgis.core import (
     QgsProcessingParameterBoolean,
     QgsProcessingParameterFeatureSink,
     QgsProcessingParameterFeatureSource,
+    QgsVectorLayer,
     QgsWkbTypes,
 )
 
-from ..ptm4qgis_algorithm import PTM4QgisAlgorithm
-from .morphal_geometry_utils import *
+from morphal.ptm4qgis_algorithm import PTM4QgisAlgorithm
+
+from . import morphal_geometry_utils as geometry_utils
+from .utils import LayerRenamer
 
 
 class MorphALGeometryToSegments(PTM4QgisAlgorithm):
-    INPUT = "INPUT"
+    INPUT_LAYER = "INPUT_LAYER"
     UNICITY = "UNICITY"
-    OUTPUT = "OUTPUT"
+    OUTPUT_LAYER = "OUTPUT_LAYER"
 
     def help(self):
         return self.tr(
@@ -50,35 +53,36 @@ class MorphALGeometryToSegments(PTM4QgisAlgorithm):
     def initAlgorithm(self, config):
         self.addParameter(
             QgsProcessingParameterFeatureSource(
-                self.INPUT,
+                self.INPUT_LAYER,
                 self.tr("Input layer"),
                 types=[QgsProcessing.TypeVectorLine, QgsProcessing.TypeVectorPolygon],
             )
         )
+
         self.addParameter(
             QgsProcessingParameterBoolean(
                 self.UNICITY, self.tr("Unicity of created segments"), True
             )
         )
+
         self.addParameter(
             QgsProcessingParameterFeatureSink(
-                self.OUTPUT, self.tr("Segments"), QgsProcessing.TypeVectorLine
+                self.OUTPUT_LAYER, self.tr("Segments"), QgsProcessing.TypeVectorLine
             )
         )
 
     def name(self):
-        return "morphalgeometrytosegments"
+        return "geometry_to_segments"
 
     def displayName(self):
         return self.tr("Geometry to segments")
 
     def processAlgorithm(self, parameters, context, feedback):
-        unicity = self.parameterAsBoolean(parameters, self.UNICITY, context)
-
-        source = self.parameterAsSource(parameters, self.INPUT, context)
+        # input / source
+        source = self.parameterAsSource(parameters, self.INPUT_LAYER, context)
         if source is None:
             raise QgsProcessingException(
-                self.invalidSourceError(parameters, self.INPUT)
+                self.invalidSourceError(parameters, self.INPUT_LAYER)
             )
 
         wkb_type = source.wkbType()
@@ -88,94 +92,117 @@ class MorphALGeometryToSegments(PTM4QgisAlgorithm):
             and QgsWkbTypes.geometryType(wkb_type) != QgsWkbTypes.LineGeometry
         ):
             feedback.reportError(
-                "The layer geometry type is different from a line or a polygon"
+                self.tr("The layer geometry type is different from a line or a polygon")
             )
             return {}
 
+        if source.featureCount() == 0:
+            feedback.reportError(
+                self.tr("The layer doesn't contain any feature: no output provided")
+            )
+            return {}
+
+        source_layer = self.parameterAsLayer(parameters, self.INPUT_LAYER, context)
+
+        # other parameters
+        unicity = self.parameterAsBoolean(parameters, self.UNICITY, context)
+
+        # output
         (sink, dest_id) = self.parameterAsSink(
             parameters,
-            self.OUTPUT,
+            self.OUTPUT_LAYER,
             context,
             source.fields(),
             QgsWkbTypes.LineString,
             source.sourceCrs(),
         )
         if sink is None:
-            raise QgsProcessingException(self.invalidSinkError(parameters, self.OUTPUT))
+            raise QgsProcessingException(
+                self.invalidSinkError(parameters, self.OUTPUT_LAYER))
 
-        all_segments = []
+        # process
+        vector_layer = QgsVectorLayer("LineString", "temp", "memory")
+
+        dp = vector_layer.dataProvider()
+        dp.addAttributes(source.fields())
+        vector_layer.updateFields()
+
+        vector_layer.startEditing()
 
         features = source.getFeatures()
         total = 100.0 / source.featureCount() if source.featureCount() else 0
 
         if QgsWkbTypes.geometryType(wkb_type) == QgsWkbTypes.PolygonGeometry:
-            if unicity:
-                for current, f in enumerate(features):
-                    if feedback.isCanceled():
-                        break
+            for current, f in enumerate(features):
+                if feedback.isCanceled():
+                    return {}
 
-                    if not f.hasGeometry():
-                        continue
-                    else:
-                        for p in self.polygon_to_unique_segments(
-                            f.geometry(), all_segments
-                        ):
-                            feat = QgsFeature()
-                            feat.setAttributes(f.attributes())
-                            feat.setGeometry(p)
-                            sink.addFeature(feat, QgsFeatureSink.FastInsert)
+                if not f.hasGeometry():
+                    continue
+                else:
+                    for p in self.polygon_to_segments(f.geometry()):
+                        feat = QgsFeature()
+                        feat.setAttributes(f.attributes())
+                        feat.setGeometry(p)
+                        vector_layer.addFeature(feat, QgsFeatureSink.FastInsert)
 
-                    feedback.setProgress(int(current * total))
-            else:
-                for current, f in enumerate(features):
-                    if feedback.isCanceled():
-                        break
-
-                    if not f.hasGeometry():
-                        continue
-                    else:
-                        for p in self.polygon_to_segments(f.geometry()):
-                            feat = QgsFeature()
-                            feat.setAttributes(f.attributes())
-                            feat.setGeometry(p)
-                            sink.addFeature(feat, QgsFeatureSink.FastInsert)
-
-                    feedback.setProgress(int(current * total))
+                feedback.setProgress(int(current * total))
         else:  # LineGeometry
-            if unicity:
-                for current, f in enumerate(features):
-                    if feedback.isCanceled():
-                        break
+            for current, f in enumerate(features):
+                if feedback.isCanceled():
+                    return {}
 
-                    if not f.hasGeometry():
-                        continue
-                    else:
-                        for p in self.line_to_unique_segments(
-                            f.geometry(), all_segments
-                        ):
-                            feat = QgsFeature()
-                            feat.setAttributes(f.attributes())
-                            feat.setGeometry(p)
-                            sink.addFeature(feat, QgsFeatureSink.FastInsert)
+                if not f.hasGeometry():
+                    continue
+                else:
+                    for p in self.line_to_segments(f.geometry()):
+                        feat = QgsFeature()
+                        feat.setAttributes(f.attributes())
+                        feat.setGeometry(p)
+                        vector_layer.addFeature(feat, QgsFeatureSink.FastInsert)
 
-                    feedback.setProgress(int(current * total))
-            else:
-                for current, f in enumerate(features):
-                    if feedback.isCanceled():
-                        break
+                feedback.setProgress(int(current * total))
 
-                    if not f.hasGeometry():
-                        continue
-                    else:
-                        for p in self.line_to_segments(f.geometry()):
-                            feat = QgsFeature()
-                            feat.setAttributes(f.attributes())
-                            feat.setGeometry(p)
-                            sink.addFeature(feat, QgsFeatureSink.FastInsert)
+        vector_layer.commitChanges()
 
-                    feedback.setProgress(int(current * total))
+        if unicity:
+            alg_params = {
+                'INPUT': vector_layer,
+                'OUTPUT': 'TEMPORARY_OUTPUT'
+            }
 
-        return {self.OUTPUT: dest_id}
+            layer_with_deleted_duplicate_geom = processing.run(
+                "native:deleteduplicategeometries",
+                alg_params,
+                context=context,
+                feedback=feedback,
+                is_child_algorithm=True
+            )
+
+            vlyr = context.getMapLayer(layer_with_deleted_duplicate_geom['OUTPUT'])
+
+            for f in vlyr.getFeatures():
+                sink.addFeature(f, QgsFeatureSink.FastInsert)
+        else:
+            for f in vector_layer.getFeatures():
+                sink.addFeature(f, QgsFeatureSink.FastInsert)
+
+        # rename output layer
+        global segments_renamer
+
+        segments_newname = ""
+        segments_newname = '{}-Segments'.format(
+            source_layer.name()
+        )
+
+        if unicity:
+            segments_newname += self.tr("-Unicity")
+
+        segments_renamer = LayerRenamer(segments_newname)
+        context.layerToLoadOnCompletionDetails(
+            dest_id).setPostProcessor(segments_renamer)
+
+        return {self.OUTPUT_LAYER: dest_id}
 
     def polygon_to_unique_segments(self, geometry, all_segments):
         # polygons to lines (multipart)
@@ -192,7 +219,7 @@ class MorphALGeometryToSegments(PTM4QgisAlgorithm):
                         p1 = QgsPoint(line[i])
                         p2 = QgsPoint(line[i + 1])
 
-                        segment = create_normalized_segment(p1, p2)
+                        segment = geometry_utils.create_normalized_segment(p1, p2)
                         segment_wkt = segment.asWkt()
 
                         if segment_wkt not in all_segments:
@@ -204,7 +231,7 @@ class MorphALGeometryToSegments(PTM4QgisAlgorithm):
                     p1 = QgsPoint(line[i])
                     p2 = QgsPoint(line[i + 1])
 
-                    segment = create_normalized_segment(p1, p2)
+                    segment = geometry_utils.create_normalized_segment(p1, p2)
                     segment_wkt = segment.asWkt()
 
                     if segment_wkt not in all_segments:
@@ -214,7 +241,7 @@ class MorphALGeometryToSegments(PTM4QgisAlgorithm):
         return segments
 
     def polygon_to_segments(self, geometry):
-        # polygons to lines (mutlipart)
+        # polygons to lines (multipart)
         boundary = QgsGeometry(geometry.constGet().boundary())
         boundaries = boundary.asGeometryCollection()
 
@@ -228,7 +255,7 @@ class MorphALGeometryToSegments(PTM4QgisAlgorithm):
                         p1 = QgsPoint(line[i])
                         p2 = QgsPoint(line[i + 1])
 
-                        segment = create_normalized_segment(p1, p2)
+                        segment = geometry_utils.create_normalized_segment(p1, p2)
                         segments.append(segment)
             else:
                 line = boundary.asPolyline()
@@ -236,7 +263,7 @@ class MorphALGeometryToSegments(PTM4QgisAlgorithm):
                     p1 = QgsPoint(line[i])
                     p2 = QgsPoint(line[i + 1])
 
-                    segment = create_normalized_segment(p1, p2)
+                    segment = geometry_utils.create_normalized_segment(p1, p2)
                     segments.append(segment)
         return segments
 
@@ -253,7 +280,7 @@ class MorphALGeometryToSegments(PTM4QgisAlgorithm):
                         p1 = QgsPoint(line[i])
                         p2 = QgsPoint(line[i + 1])
 
-                        segment = create_normalized_segment(p1, p2)
+                        segment = geometry_utils.create_normalized_segment(p1, p2)
                         segment_wkt = segment.asWkt()
 
                         if segment_wkt not in all_segments:
@@ -265,7 +292,7 @@ class MorphALGeometryToSegments(PTM4QgisAlgorithm):
                     p1 = QgsPoint(line[i])
                     p2 = QgsPoint(line[i + 1])
 
-                    segment = create_normalized_segment(p1, p2)
+                    segment = geometry_utils.create_normalized_segment(p1, p2)
                     segment_wkt = segment.asWkt()
 
                     if segment_wkt not in all_segments:
@@ -287,7 +314,7 @@ class MorphALGeometryToSegments(PTM4QgisAlgorithm):
                         p1 = QgsPoint(line[i])
                         p2 = QgsPoint(line[i + 1])
 
-                        segment = create_normalized_segment(p1, p2)
+                        segment = geometry_utils.create_normalized_segment(p1, p2)
                         segments.append(segment)
             else:
                 line = geom.asPolyline()
@@ -295,6 +322,6 @@ class MorphALGeometryToSegments(PTM4QgisAlgorithm):
                     p1 = QgsPoint(line[i])
                     p2 = QgsPoint(line[i + 1])
 
-                    segment = create_normalized_segment(p1, p2)
+                    segment = geometry_utils.create_normalized_segment(p1, p2)
                     segments.append(segment)
         return segments
