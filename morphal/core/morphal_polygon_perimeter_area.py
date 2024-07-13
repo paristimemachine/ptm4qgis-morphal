@@ -34,7 +34,7 @@ from qgis.core import (
 )
 from qgis.PyQt.QtCore import QVariant
 
-from ..ptm4qgis_algorithm import PTM4QgisAlgorithm
+from morphal.ptm4qgis_algorithm import PTM4QgisAlgorithm
 
 
 class MorphALPolygonPerimeterArea(PTM4QgisAlgorithm):
@@ -143,7 +143,7 @@ class MorphALPolygonPerimeterArea(PTM4QgisAlgorithm):
         total = 100.0 / source.featureCount() if source.featureCount() else 0
         for current, f in enumerate(features):
             if feedback.isCanceled():
-                break
+                return {}
 
             out_feat = f
             attrs = f.attributes()
