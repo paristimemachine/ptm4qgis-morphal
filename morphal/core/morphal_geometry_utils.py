@@ -157,7 +157,7 @@ def _geometry_num_vertices(geometry: QgsGeometry):
     return index
 
 
-def polygon_elongation(polygon: QgsPolygon):
+def rectangle_elongation(polygon: QgsPolygon):
     """
     Compute the elongation of a rectangle, equals to the ratio length / width.
     If the polygon in parameter has a number of coordinates different from 5,
@@ -176,7 +176,7 @@ def polygon_elongation(polygon: QgsPolygon):
     length = v0.distance(v1.x(), v1.y())
     length2 = v1.distance(v2.x(), v2.y())
 
-    if length == length2:
+    if length >= length2:
         return length / length2
     return length2 / length
 
@@ -323,7 +323,13 @@ def is_rectangle_indices(
         sd_mbr = surface_distance(polygon, mbr, distance_area)
         mbr_orientation = _mbr_orientation(mbr)
 
-    return sd_convex_hull, sd_mbr, mbr_orientation
+    elongation = -1.0
+    if width >= height:
+        elongation = width / height
+    else:
+        elongation = height / width
+
+    return sd_convex_hull, sd_mbr, mbr_orientation, elongation
 
 
 def surface_distance(
