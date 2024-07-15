@@ -43,13 +43,13 @@ class MorphALPolygonPerimeterArea(PTM4QgisAlgorithm):
     OUTPUT = "OUTPUT"
 
     def help(self):
-        # TODO improve help text
-        return self.tr("Compute the perimeters and areas of a layer of polygons")
+        return self.tr("\
+            This algorithm computes polygon perimeters and areas in a vector layer.\
+            \nIt generates a new vector layer with the same content as the input one, but with\
+            additional attributes in its attributes table: : perimeter and area.")
 
     def __init__(self):
         super().__init__()
-        self.export_z = False
-        self.export_m = False
         self.distance_area = None
         self.calc_methods = [
             self.tr("Layer CRS"),
@@ -85,25 +85,27 @@ class MorphALPolygonPerimeterArea(PTM4QgisAlgorithm):
         return "polygon_perimeter_area"
 
     def displayName(self):
-        # TODO IMPROVE TEXT
-        return self.tr("Compute the perimeters and areas of a layer of polygons")
+        return self.tr("Add polygon perimeters and areas")
 
     def processAlgorithm(self, parameters, context, feedback):
+        # input / source
         source = self.parameterAsSource(parameters, self.INPUT, context)
         if source is None:
             raise QgsProcessingException(
                 self.invalidSourceError(parameters, self.INPUT)
             )
 
-        method = self.parameterAsEnum(parameters, self.METHOD, context)
-
         wkb_type = source.wkbType()
 
+        # TODO ? improvement: test if the layer contains at least one feature
         if QgsWkbTypes.geometryType(wkb_type) != QgsWkbTypes.PolygonGeometry:
-            # TODO IMPROVE FEEDBACK
             feedback.reportError("The layer geometry type is different from a polygon")
             return {}
 
+        # other parameters
+        method = self.parameterAsEnum(parameters, self.METHOD, context)
+
+        # output
         fields = source.fields()
 
         new_fields = QgsFields()
