@@ -36,7 +36,8 @@ from qgis.core import (
 )
 from qgis.PyQt.QtCore import QVariant
 
-from ..ptm4qgis_algorithm import PTM4QgisAlgorithm
+from morphal.ptm4qgis_algorithm import PTM4QgisAlgorithm
+
 from . import morphal_geometry_utils as geometry_utils
 
 
@@ -73,19 +74,23 @@ class MorphALSegmentOrientation(PTM4QgisAlgorithm):
         self.calc_methods = [self.tr("Layer CRS"),
                              self.tr("Project CRS"),
                              self.tr("Ellipsoidal")]
-        # self.calc_methods = [self.tr("Layer CRS"), self.tr("Project CRS")]
         self.errors = ""
 
     def initAlgorithm(self, config):
         self.addParameter(
             QgsProcessingParameterFeatureSource(
-                self.INPUT, self.tr("Input layer"), types=[QgsProcessing.TypeVectorLine]
+                self.INPUT,
+                self.tr("Input layer"),
+                types=[QgsProcessing.TypeVectorLine]
             )
         )
 
         self.addParameter(
             QgsProcessingParameterEnum(
-                self.UNIT, self.tr("Unit"), options=self.units, defaultValue=0
+                self.UNIT,
+                self.tr("Unit"),
+                options=self.units,
+                defaultValue=0
             )
         )
 
@@ -153,7 +158,9 @@ class MorphALSegmentOrientation(PTM4QgisAlgorithm):
 
         self.addParameter(
             QgsProcessingParameterFeatureSink(
-                self.OUTPUT, self.tr("Segments with orientation")
+                self.OUTPUT,
+                self.tr("Segments with orientations"),
+                type=QgsProcessing.TypeVectorLine
             )
         )
 
@@ -161,8 +168,7 @@ class MorphALSegmentOrientation(PTM4QgisAlgorithm):
         return "segment_orientation"
 
     def displayName(self):
-        # TODO IMPROVE TEXT
-        return self.tr("Compute the orientations of a layer of segments")
+        return self.tr("Compute segments orientations")
 
     def processAlgorithm(self, parameters, context, feedback):
         source = self.parameterAsSource(parameters, self.INPUT, context)
@@ -204,10 +210,14 @@ class MorphALSegmentOrientation(PTM4QgisAlgorithm):
 
         wkb_type = source.wkbType()
 
-        # TODO ? improvement: test if the layer contains at least one segment
         if QgsWkbTypes.geometryType(wkb_type) != QgsWkbTypes.LineGeometry:
-            # TODO IMPROVE FEEDBACK
             feedback.reportError("The layer geometry type is different from a line")
+            return {}
+
+        if source.featureCount() == 0:
+            feedback.reportError(
+                self.tr("The layer doesn't contain any feature: no output provided")
+            )
             return {}
 
         fields = source.fields()
@@ -218,11 +228,14 @@ class MorphALSegmentOrientation(PTM4QgisAlgorithm):
             new_fields.append(QgsField("CLASSIFICATION", QVariant.Double))
 
         fields = QgsProcessingUtils.combineFields(fields, new_fields)
+
         (sink, dest_id) = self.parameterAsSink(
             parameters, self.OUTPUT, context, fields, wkb_type, source.sourceCrs()
         )
         if sink is None:
-            raise QgsProcessingException(self.invalidSinkError(parameters, self.OUTPUT))
+            raise QgsProcessingException(
+                self.invalidSinkError(parameters, self.OUTPUT)
+            )
 
         coord_transform = None
 
@@ -245,7 +258,7 @@ class MorphALSegmentOrientation(PTM4QgisAlgorithm):
         total = 100.0 / source.featureCount() if source.featureCount() else 0
         for current, f in enumerate(features):
             if feedback.isCanceled():
-                break
+                return {}
 
             out_feature = f
             attrs = f.attributes()
