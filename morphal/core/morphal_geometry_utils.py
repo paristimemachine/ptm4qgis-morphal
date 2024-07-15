@@ -25,28 +25,28 @@ from .utils import round_down_float_to_3_decimals
 
 
 def points_comparison(
-        point_1: QgsPoint,
-        point_2: QgsPoint
+        point_0: QgsPoint,
+        point_1: QgsPoint
 ):
-    if point_1.x() < point_2.x():
+    if point_0.x() < point_1.x():
         return -1
-    if point_1.x() > point_2.x():
+    if point_0.x() > point_1.x():
         return 1
-    if point_1.y() < point_2.y():
+    if point_0.y() < point_1.y():
         return -1
-    if point_1.y() > point_2.y():
+    if point_0.y() > point_1.y():
         return 1
     return 0
 
 
 def create_normalized_segment(
-        point_1: QgsPoint,
-        point_2: QgsPoint
+        point_0: QgsPoint,
+        point_1: QgsPoint
 ):
-    if points_comparison(point_1, point_2) < 0:
-        return QgsGeometry(QgsLineString([point_2, point_1]))
+    if points_comparison(point_0, point_1) < 0:
+        return QgsGeometry(QgsLineString([point_0, point_1]))
     else:
-        return QgsGeometry(QgsLineString([point_1, point_2]))
+        return QgsGeometry(QgsLineString([point_1, point_0]))
 
 
 def polygon_orientation(polygon: QgsPolygon):
