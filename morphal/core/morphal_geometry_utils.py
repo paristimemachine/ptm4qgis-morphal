@@ -417,3 +417,48 @@ def angle(
         angle_x = round_down_float_to_3_decimals(angle_x)
 
     return angle_x
+
+
+def angle_north_east(
+        geometry: QgsGeometry,
+        unit: int,
+        interval: float,
+        accuracy: bool,
+        from_north: bool = False
+):
+    """
+    Compute the angle between 2 points (between 0 and PI or between O and PI/2)
+    comparatively to the X/East axis by default, or comparatively to the Y/NOrth
+    axis if the parameter from_north is true.
+
+    geometry --> check
+
+    :param QgsGeometry geometry: geometry to process
+    :param int unit: unit in degree if 0, grade if 2 (radian if something else)
+    :param float interval: interval [ 0 ; PI [ if 0, [ 0 ; PI/2 [ if 1,
+                    otherwise the interval [ 0 ; PI/2 [ is the default choice
+    :param bool accuracy: true to keep two numbers after the dot, false to keep all numbers
+    :param bool from_north: true to compute an orientation from the North
+    :return: the computed angle or None otherwise
+    """
+
+    angle_output = angle(
+            geometry,
+            unit,
+            interval,
+            False
+    )
+
+    if from_north:
+        if unit == 0:  # degree
+            angle_output = 90 - angle_output
+        elif unit == 1:  # radian
+            angle_output = math.pi / 2.0 - angle_output
+        elif unit == 2:  # grade
+            angle_output = 100 - angle_output
+
+    # accuracy
+    if accuracy:
+        angle_output = round_down_float_to_3_decimals(angle_output)
+
+    return angle_output
