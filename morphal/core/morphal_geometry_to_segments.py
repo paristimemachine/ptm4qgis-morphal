@@ -44,9 +44,12 @@ class MorphALGeometryToSegments(PTM4QgisAlgorithm):
     OUTPUT_LAYER = "OUTPUT_LAYER"
 
     def help(self):
-        return self.tr(
-            "Geometry to segments. Transform a layer of lines or polygons into segments."
-        )
+        return self.tr("\
+            This algorithm generates a segment layer from an input line layer or an input polygon layer.\
+            \nThese segments are normalised, i.e. their point of origin is always located as far west \
+            as possible, or otherwise as far south as possible.\
+            \nOptionally, it is possible to generate unique segments based on geometry.\
+            \nThe attribute table of the output layer is identical to the one of the input layer.")
 
     def __init__(self):
         super().__init__()
@@ -55,24 +58,24 @@ class MorphALGeometryToSegments(PTM4QgisAlgorithm):
     def initAlgorithm(self, config):
         self.addParameter(
             QgsProcessingParameterFeatureSource(
-                name=self.INPUT_LAYER,
-                description=self.tr("Input layer"),
+                self.INPUT_LAYER,
+                self.tr("Input layer"),
                 types=[QgsProcessing.TypeVectorLine, QgsProcessing.TypeVectorPolygon],
             )
         )
 
         self.addParameter(
             QgsProcessingParameterBoolean(
-                name=self.UNICITY,
-                description=self.tr("Unicity of created segments"),
+                self.UNICITY,
+                self.tr("Unicity of created segments"),
                 defaultValue=self.unicity
             )
         )
 
         self.addParameter(
             QgsProcessingParameterFeatureSink(
-                name=self.OUTPUT_LAYER,
-                description=self.tr("Segments"),
+                self.OUTPUT_LAYER,
+                self.tr("Segments"),
                 type=QgsProcessing.TypeVectorLine
             )
         )
@@ -81,7 +84,7 @@ class MorphALGeometryToSegments(PTM4QgisAlgorithm):
         return "geometry_to_segments"
 
     def displayName(self):
-        return self.tr("Geometry to segments")
+        return self.tr("Geometries to segments")
 
     def processAlgorithm(self, parameters, context, feedback):
         # input / source
