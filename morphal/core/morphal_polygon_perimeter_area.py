@@ -97,9 +97,14 @@ class MorphALPolygonPerimeterArea(PTM4QgisAlgorithm):
 
         wkb_type = source.wkbType()
 
-        # TODO ? improvement: test if the layer contains at least one feature
         if QgsWkbTypes.geometryType(wkb_type) != QgsWkbTypes.PolygonGeometry:
             feedback.reportError("The layer geometry type is different from a polygon")
+            return {}
+
+        if source.featureCount() == 0:
+            feedback.reportError(
+                self.tr("The layer doesn't contain any feature: no output provided")
+            )
             return {}
 
         # other parameters
