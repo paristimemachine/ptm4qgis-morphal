@@ -45,8 +45,7 @@ def create_normalized_segment(
 ):
     if points_comparison(point_0, point_1) < 0:
         return QgsGeometry(QgsLineString([point_0, point_1]))
-    else:
-        return QgsGeometry(QgsLineString([point_1, point_0]))
+    return QgsGeometry(QgsLineString([point_1, point_0]))
 
 
 def polygon_orientation(polygon: QgsPolygon):
@@ -383,41 +382,38 @@ def angle(
     """
 
     num_vertices = _geometry_num_vertices(geometry)
-    if num_vertices == 0:  # null or empty
+    if num_vertices != 2:  # includes null or empty geometries
         return None
 
-    if num_vertices != 2:
-        return None
-    else:
-        vertices = _geometry_vertices(geometry, 1)
-        v0 = QgsPoint(vertices[0].x(), vertices[0].y())
-        v1 = QgsPoint(vertices[1].x(), vertices[1].y())
+    vertices = _geometry_vertices(geometry, 1)
+    v0 = QgsPoint(vertices[0].x(), vertices[0].y())
+    v1 = QgsPoint(vertices[1].x(), vertices[1].y())
 
-        x = v1.x() - v0.x()
-        y = v1.y() - v0.y()
-        angle_x = math.atan2(y, x)
+    x = v1.x() - v0.x()
+    y = v1.y() - v0.y()
+    angle_x = math.atan2(y, x)
 
-        #  [O ; Pi[
-        if interval == 0:
-            if angle_x < 0:
-                angle_x = angle_x + math.pi
-            if angle_x == math.pi:
-                angle_x = 0.0
-        else:  # [O ; Pi/2[
-            if angle_x < 0:
-                angle_x = angle_x + math.pi
-            angle_x = angle_x % (math.pi / 2.0)
-            if angle_x == (math.pi / 2.0):
-                angle_x = 0.0
+    #  [O ; Pi[
+    if interval == 0:
+        if angle_x < 0:
+            angle_x = angle_x + math.pi
+        if angle_x == math.pi:
+            angle_x = 0.0
+    else:  # [O ; Pi/2[
+        if angle_x < 0:
+            angle_x = angle_x + math.pi
+        angle_x = angle_x % (math.pi / 2.0)
+        if angle_x == (math.pi / 2.0):
+            angle_x = 0.0
 
-        # unit conversion
-        if unit == 0:  # degree
-            angle_x = math.degrees(angle_x)
-        elif unit == 2:  # grade
-            angle_x = angle_x * 200.0 / math.pi
+    # unit conversion
+    if unit == 0:  # degree
+        angle_x = math.degrees(angle_x)
+    elif unit == 2:  # grade
+        angle_x = angle_x * 200.0 / math.pi
 
-        # accuracy
-        if accuracy:
-            angle_x = round_down_float_to_3_decimals(angle_x)
+    # accuracy
+    if accuracy:
+        angle_x = round_down_float_to_3_decimals(angle_x)
 
-        return angle_x
+    return angle_x
