@@ -13,6 +13,14 @@ class LayerRenamer(QgsProcessingLayerPostProcessorInterface):
         layer.setName(self.name)
 
 
+def round_float_to_3_decimals(num: float) -> float:
+    return int(num * 1000) / 1000
+
+
+def round_float_to_5_decimals(num: float) -> float:
+    return int(num * 100000) / 100000
+
+
 def round_down_float_to_3_decimals(num: float) -> float:
     return math.floor(num * 1000) / 1000
 
