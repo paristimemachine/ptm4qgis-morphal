@@ -108,6 +108,11 @@ class MorphALPolygonPerimeterArea(PTM4QgisAlgorithm):
             return {}
 
         # other parameters
+
+        # Calculate with:
+        # 0 - layer CRS
+        # 1 - project CRS
+        # 2 - ellipsoidal
         method = self.parameterAsEnum(parameters, self.METHOD, context)
 
         # output
@@ -124,11 +129,7 @@ class MorphALPolygonPerimeterArea(PTM4QgisAlgorithm):
         if sink is None:
             raise QgsProcessingException(self.invalidSinkError(parameters, self.OUTPUT))
 
-        # Calculate with:
-        # 0 - layer CRS
-        # 1 - project CRS
-        # 2 - ellipsoidal
-
+        # process
         coord_transform = None
 
         self.distance_area = QgsDistanceArea()
