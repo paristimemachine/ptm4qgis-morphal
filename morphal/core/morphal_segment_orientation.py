@@ -44,10 +44,10 @@ from .utils import LayerRenamer, round_float_to_3_decimals
 
 class MorphALSegmentOrientation(PTM4QgisAlgorithm):
     INPUT = "INPUT"
-    UNIT = "UNIT"
-    INTERVAL = "INTERVAL"
     METHOD = "CALC_METHOD"
     ORIENTATION_ORIGIN = "ORIENTATION_ORIGIN"
+    UNIT = "UNIT"
+    INTERVAL = "INTERVAL"
     ROUNDED = "ROUNDED"
     # HISTOGRAM = "HISTOGRAM"
     # HISTOGRAM_STEP = "HISTOGRAM_STEP"
@@ -203,6 +203,13 @@ class MorphALSegmentOrientation(PTM4QgisAlgorithm):
             return {}
 
         # other parameters
+
+        # Calculate with projection:
+        # 0 - layer CRS
+        # 1 - project CRS
+        # 2 - ellipsoidal
+        method = self.parameterAsEnum(parameters, self.METHOD, context)
+
         # Orientation origin:
         # 0 - East
         # 1 - North
@@ -221,12 +228,6 @@ class MorphALSegmentOrientation(PTM4QgisAlgorithm):
         # 0 - [0 ; Pi[
         # 1 - [0 ; Pi/2[
         interval = self.parameterAsEnum(parameters, self.INTERVAL, context)
-
-        # Calculate with projection:
-        # 0 - layer CRS
-        # 1 - project CRS
-        # 2 - ellipsoidal
-        method = self.parameterAsEnum(parameters, self.METHOD, context)
 
         rounded = self.parameterAsBoolean(parameters, self.ROUNDED, context)
 
