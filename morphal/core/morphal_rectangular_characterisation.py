@@ -34,13 +34,14 @@ from qgis.core import (
     QgsProcessingParameterFeatureSource,
     QgsProcessingParameterNumber,
     QgsProcessingUtils,
+    QgsWkbTypes,
 )
 from qgis.PyQt.QtCore import QVariant
 
 from morphal.ptm4qgis_algorithm import PTM4QgisAlgorithm
 
 from . import morphal_geometry_utils as geometry_utils
-from .utils import LayerRenamer
+from .utils import LayerRenamer, round_float_to_5_decimals
 
 
 class MorphALRectangularCharacterisation(PTM4QgisAlgorithm):
@@ -71,6 +72,10 @@ class MorphALRectangularCharacterisation(PTM4QgisAlgorithm):
     SD_CONVEX_RECT_GROUP = "SD_CONVEX_RECT_GROUP"
     SD_MBR_RECT_GROUP = "SD_MBR_RECT_GROUP"
     RECT_GROUP_LAYER_OUTPUT = "RECT_GROUP_LAYER_OUTPUT"
+
+    RECTANGLE_ALL_INDICATORS = "RECTANGLE_ALL_INDICATORS"
+    RECT_ALL_INDICATORS_LAYER_OUTPUT = "RECT_ALL_INDICATORS_LAYER_OUTPUT"
+    RECT_ALL_INDICATORS_COUNT = "RECT_ALL_INDICATORS_COUNT"
 
     CIRCULAR_SHAPE = "CIRCULAR_SHAPE"
     MILLER_INDEX = "MILLER_INDEX"
@@ -105,7 +110,7 @@ class MorphALRectangularCharacterisation(PTM4QgisAlgorithm):
             )
         )
 
-        # RECTANGLE DETECTION - LEVEL 1
+        # Rectangle detection - Level 1
         self.addParameter(
             QgsProcessingParameterBoolean(
                 self.RECTANGLE_LEVEL_1,
@@ -146,7 +151,7 @@ class MorphALRectangularCharacterisation(PTM4QgisAlgorithm):
             )
         )
 
-        # RECTANGLE DETECTION - LEVEL 2
+        # Rectangle detection - Level 2
         self.addParameter(
             QgsProcessingParameterBoolean(
                 self.RECTANGLE_LEVEL_2,
@@ -187,7 +192,7 @@ class MorphALRectangularCharacterisation(PTM4QgisAlgorithm):
             )
         )
 
-        # RECTANGLE DETECTION - LEVEL 3
+        # Rectangle detection - Level 3
         self.addParameter(
             QgsProcessingParameterBoolean(
                 self.RECTANGLE_LEVEL_3,
@@ -228,6 +233,16 @@ class MorphALRectangularCharacterisation(PTM4QgisAlgorithm):
             )
         )
 
+        # Rectangle detection - All indicators
+        self.addParameter(
+            QgsProcessingParameterFeatureSink(
+                self.RECT_ALL_INDICATORS_LAYER_OUTPUT,
+                self.tr("All rectangular indicators"),
+                QgsProcessing.TypeVectorAnyGeometry,
+                None,
+                True,
+            )
+        )
         # RECTANGULAR_GROUP = 'RECTANGULAR_GROUP'
         # RECTANGULAR_GROUP_LAYER_INPUT = 'RECTANGULAR_GROUP_LAYER_INPUT'
         # SD_CONVEX_RECT_GROUP = 'SD_CONVEX_RECT_GROUP'
@@ -242,7 +257,7 @@ class MorphALRectangularCharacterisation(PTM4QgisAlgorithm):
         self.addParameter(
             QgsProcessingParameterNumber(
                 self.MILLER_INDEX,
-                self.tr("Circularity threshold"),
+                self.tr("Roundness threshold"),
                 type=QgsProcessingParameterNumber.Double,
                 minValue=0.0,
                 maxValue=1.0,
@@ -254,7 +269,6 @@ class MorphALRectangularCharacterisation(PTM4QgisAlgorithm):
         return "rectangular_characterisation"
 
     def displayName(self):
-        # TODO IMPROVE
         return self.tr("Rectangular characterisation")
 
     def processAlgorithm(self, parameters, context, feedback):
@@ -274,6 +288,24 @@ class MorphALRectangularCharacterisation(PTM4QgisAlgorithm):
 
     def process(self, method, parameters, context, feedback):
         # flags = QgsGeometry.FlagAllowSelfTouchingHoles if ignore_ring_self_intersection else QgsGeometry.ValidityFlags()
+
+        source = self.parameterAsSource(parameters, self.INPUT_LAYER, context)
+        if source is None:
+            raise QgsProcessingException(
+                self.invalidSourceError(parameters, self.INPUT_LAYER)
+            )
+
+        wkb_type = source.wkbType()
+
+        if QgsWkbTypes.geometryType(wkb_type) != QgsWkbTypes.PolygonGeometry:
+            feedback.reportError("The input layer geometry type is different from a polygon")
+            return {}
+
+        if source.featureCount() == 0:
+            feedback.reportError(
+                self.tr("The input layer doesn't contain any feature: no output provided")
+            )
+            return {}
 
         source_layer = self.parameterAsLayer(parameters, self.INPUT_LAYER, context)
 
@@ -304,12 +336,6 @@ class MorphALRectangularCharacterisation(PTM4QgisAlgorithm):
         miller_index_threshold = self.parameterAsDouble(
             parameters, self.MILLER_INDEX, context
         )
-
-        source = self.parameterAsSource(parameters, self.INPUT_LAYER, context)
-        if source is None:
-            raise QgsProcessingException(
-                self.invalidSourceError(parameters, self.INPUT_LAYER)
-            )
 
         fields = source.fields()
         new_fields = QgsFields()
@@ -368,6 +394,21 @@ class MorphALRectangularCharacterisation(PTM4QgisAlgorithm):
                 self.invalidSinkError(parameters, self.RECT_3_LAYER_OUTPUT)
             )
 
+        (rect_all_indicators_output_sink, rect_all_indicators_output_dest_id) = self.parameterAsSink(
+            parameters,
+            self.RECT_ALL_INDICATORS_LAYER_OUTPUT,
+            context,
+            fields,
+            source.wkbType(),
+            source.sourceCrs(),
+        )
+
+        rect_all_indicators_count = 0
+        if rect_all_indicators_output_sink is None:
+            raise QgsProcessingException(
+                self.invalidSinkError(parameters, self.RECT_ALL_INDICATORS_LAYER_OUTPUT)
+            )
+
         distance_area = QgsDistanceArea()
 
         features = source.getFeatures(
@@ -377,7 +418,7 @@ class MorphALRectangularCharacterisation(PTM4QgisAlgorithm):
         total = 100.0 / source.featureCount() if source.featureCount() else 0
         for current, f in enumerate(features):
             if feedback.isCanceled():
-                break
+                return {}
 
             geom = f.geometry()
             attrs = f.attributes()
@@ -386,18 +427,21 @@ class MorphALRectangularCharacterisation(PTM4QgisAlgorithm):
             mbr_orientation = -1.0
 
             if not geom.isNull() and not geom.isEmpty():
-                sd_convex_hull, sd_mbr, mbr_orientation = geometry_utils.is_rectangle_indices(
+                sd_convex_hull, sd_mbr, mbr_orientation, elongation = geometry_utils.is_rectangle_indices(
                     geom, distance_area
                 )
-                # index_rect = is_rectangle_indices(
-                #     geom,
-                #     sd_convex_level_1,
-                #     sd_mbr_level_1,
-                #     distance_area
-                # )
                 index_compact = geometry_utils.compactness_miller_index(geom, distance_area)
                 index_circle = geometry_utils.is_circle(geom, miller_index_threshold, distance_area)
-                elongation = geometry_utils.polygon_elongation(geom)
+
+                # round indicators
+                sd_convex_hull = round_float_to_5_decimals(sd_convex_hull)
+                if sd_convex_hull <= 0 and sd_convex_hull >= -0.00001:
+                    sd_convex_hull = 0
+                sd_mbr = round_float_to_5_decimals(sd_mbr)
+                mbr_orientation = round_float_to_5_decimals(mbr_orientation)
+                elongation = round_float_to_5_decimals(elongation)
+                index_compact = round_float_to_5_decimals(index_compact)
+
                 attrs.extend(
                     [
                         sd_convex_hull,
@@ -418,6 +462,10 @@ class MorphALRectangularCharacterisation(PTM4QgisAlgorithm):
                 out_feat.setAttributes(attrs)
 
                 if sd_convex_hull != -2.0:
+                    rect_all_indicators_output_sink.addFeature(
+                        out_feat, QgsFeatureSink.FastInsert
+                    )
+                    rect_all_indicators_count += 1
                     if rect_level_1:
                         if (
                             sd_convex_hull <= sd_convex_level_1
@@ -450,13 +498,14 @@ class MorphALRectangularCharacterisation(PTM4QgisAlgorithm):
 
             feedback.setProgress(int(current * total))
 
-        results = {
-            self.RECT_1_COUNT: rect_1_count,
-            self.RECT_2_COUNT: rect_2_count,
-            self.RECT_3_COUNT: rect_3_count,
-        }
+        # results = {
+        #     self.RECT_1_COUNT: rect_1_count,
+        #     self.RECT_2_COUNT: rect_2_count,
+        #     self.RECT_3_COUNT: rect_3_count,
+        # }
+        results = {}
 
-        global rect_1_renamer, rect_2_renamer, rect_3_renamer
+        global rect_1_renamer, rect_2_renamer, rect_3_renamer, rect_all_indicators_renamer
 
         rect_1_newname = '{}-Rectangles-Level_1-{}-{}'.format(
             source_layer.name(),
@@ -485,11 +534,20 @@ class MorphALRectangularCharacterisation(PTM4QgisAlgorithm):
         context.layerToLoadOnCompletionDetails(
             rect_3_output_dest_id).setPostProcessor(rect_3_renamer)
 
+        rect_all_indicators_newname = '{}-Rectangles-All_indicators'.format(
+            source_layer.name()
+        )
+        rect_all_indicators_renamer = LayerRenamer(rect_all_indicators_newname)
+        context.layerToLoadOnCompletionDetails(
+            rect_all_indicators_output_dest_id).setPostProcessor(rect_all_indicators_renamer)
+
         if rect_1_output_sink:
             results[self.RECT_1_LAYER_OUTPUT] = rect_1_output_dest_id
         if rect_1_output_sink:
             results[self.RECT_2_LAYER_OUTPUT] = rect_2_output_dest_id
         if rect_1_output_sink:
             results[self.RECT_3_LAYER_OUTPUT] = rect_3_output_dest_id
+        if rect_all_indicators_output_sink:
+            results[self.RECT_ALL_INDICATORS_LAYER_OUTPUT] = rect_all_indicators_output_dest_id
 
         return results
