@@ -452,10 +452,16 @@ def angle_north_east(
     if from_north:
         if unit == 0:  # degree
             angle_output = 90 - angle_output
+            if angle_output == 90.0:
+                angle_output = 0.0
         elif unit == 1:  # radian
             angle_output = math.pi / 2.0 - angle_output
+            if angle_output == (math.pi / 2.0):
+                angle_output = 0.0
         elif unit == 2:  # grade
             angle_output = 100 - angle_output
+            if angle_output == 100.0:
+                angle_output = 0.0
 
     # accuracy
     if accuracy:
