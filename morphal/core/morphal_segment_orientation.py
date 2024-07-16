@@ -39,6 +39,7 @@ from qgis.PyQt.QtCore import QVariant
 from morphal.ptm4qgis_algorithm import PTM4QgisAlgorithm
 
 from . import morphal_geometry_utils as geometry_utils
+from .utils import LayerRenamer, round_float_to_3_decimals
 
 
 class MorphALSegmentOrientation(PTM4QgisAlgorithm):
@@ -324,5 +325,22 @@ class MorphALSegmentOrientation(PTM4QgisAlgorithm):
             sink.addFeature(out_feature, QgsFeatureSink.FastInsert)
 
             feedback.setProgress(int(current * total))
+
+        # rename output layer
+        global orientations_renamer
+
+        orientations_newname = f'{source.sourceName()}-Orientations-'
+
+        if from_north:
+            orientations_newname += self.tr("North")
+        else:
+            orientations_newname += self.tr("East")
+
+        if classification:
+            orientations_newname += f'-{round_float_to_3_decimals(classification_step)}'
+
+        orientations_renamer = LayerRenamer(orientations_newname)
+        context.layerToLoadOnCompletionDetails(
+            dest_id).setPostProcessor(orientations_renamer)
 
         return {self.OUTPUT: dest_id}
