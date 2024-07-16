@@ -219,6 +219,22 @@ def compactness_miller_index(
     return 4 * math.pi * area / math.pow(perimeter, 2)
 
 
+def compactness_miller_index_from_precomputed_parameters(
+        perimeter: float,
+        area: float
+):
+    """
+    Compute the compactness index of a polygon from its
+    given perimeter and area, based on Miller's index,
+    4.Pi.area / perimeter^2.
+    """
+
+    if perimeter == 0:
+        return 0.0
+
+    return 4 * math.pi * area / math.pow(perimeter, 2)
+
+
 def compactness_gravelius_index(
         polygon: QgsPolygon,
         distance_area: QgsDistanceArea
@@ -234,6 +250,21 @@ def compactness_gravelius_index(
 
     perimeter = distance_area.measurePerimeter(polygon)
     area = distance_area.measureArea(polygon)
+
+    if perimeter == 0 or area == 0:
+        return 0.0
+    return perimeter / (2 * math.sqrt(math.pi * area))
+
+
+def compactness_gravelius_index_from_precomputed_parameters(
+        perimeter: float,
+        area: float
+):
+    """
+    Compute the compactness index of a polygon from its
+    given perimeter and area, based on Gravelius' index,
+    perimeter / 2.sqrt(Pi.area)
+    """
 
     if perimeter == 0 or area == 0:
         return 0.0
