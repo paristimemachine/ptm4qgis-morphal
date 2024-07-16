@@ -21,7 +21,7 @@ import math
 
 from qgis.core import QgsDistanceArea, QgsGeometry, QgsLineString, QgsPoint, QgsPolygon
 
-from .utils import round_down_float_to_3_decimals
+from .utils import round_float_to_3_decimals
 
 
 def points_comparison(
@@ -414,7 +414,7 @@ def angle(
 
     # accuracy
     if accuracy:
-        angle_x = round_down_float_to_3_decimals(angle_x)
+        angle_x = round_float_to_3_decimals(angle_x)
 
     return angle_x
 
@@ -459,6 +459,6 @@ def angle_north_east(
 
     # accuracy
     if accuracy:
-        angle_output = round_down_float_to_3_decimals(angle_output)
+        angle_output = round_float_to_3_decimals(angle_output)
 
     return angle_output
