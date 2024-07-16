@@ -20,8 +20,10 @@
 import inspect
 import os
 import sys
+from pathlib import Path
 
-from qgis.core import QgsApplication
+from qgis.core import QgsApplication, QgsSettings
+from qgis.PyQt.QtCore import QCoreApplication, QLocale, QTranslator
 
 from .ptm4qgis_provider import PTM4QgisProvider
 
@@ -38,6 +40,18 @@ class PTMPlugin(object):
         self.iface = iface
         # initialize plugin directory
         self.plugin_dir = os.path.dirname(__file__)
+
+        # translation
+        self.locale: str = QgsSettings().value("locale/userLocale", QLocale().name())[
+            0:2
+        ]
+        locale_path: Path = (
+            Path(__file__).parent / f"resources/i18n/morphal_{self.locale}.qm"
+        )
+        if locale_path.exists():
+            self.translator = QTranslator()
+            self.translator.load(str(locale_path.resolve()))
+            QCoreApplication.installTranslator(self.translator)
 
     def initProcessing(self):
         """
