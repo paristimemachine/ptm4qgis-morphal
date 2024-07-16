@@ -46,6 +46,7 @@ class MorphALSegmentOrientation(PTM4QgisAlgorithm):
     UNIT = "UNIT"
     INTERVAL = "INTERVAL"
     METHOD = "CALC_METHOD"
+    ORIENTATION_ORIGIN = "ORIENTATION_ORIGIN"
     ROUNDED = "ROUNDED"
     # HISTOGRAM = "HISTOGRAM"
     # HISTOGRAM_STEP = "HISTOGRAM_STEP"
@@ -54,14 +55,18 @@ class MorphALSegmentOrientation(PTM4QgisAlgorithm):
     OUTPUT = "OUTPUT"
 
     def help(self):
-        # TODO improve help text
         return self.tr("Compute the orientations of a layer of segments")
 
     def __init__(self):
         super().__init__()
-        self.export_z = False
-        self.export_m = False
         self.distance_area = None
+        self.calc_methods = [self.tr("Layer CRS"),
+                             self.tr("Project CRS"),
+                             self.tr("Ellipsoidal")]
+        self.orientation_origins = [
+            self.tr("East"),
+            self.tr("North")
+        ]
         self.units = [
             self.tr("Degree"),
             self.tr("Radian"),
@@ -71,9 +76,6 @@ class MorphALSegmentOrientation(PTM4QgisAlgorithm):
             self.tr("[0 ; Pi["),
             self.tr("[0 ; Pi/2[")
         ]
-        self.calc_methods = [self.tr("Layer CRS"),
-                             self.tr("Project CRS"),
-                             self.tr("Ellipsoidal")]
         self.errors = ""
 
     def initAlgorithm(self, config):
@@ -82,6 +84,24 @@ class MorphALSegmentOrientation(PTM4QgisAlgorithm):
                 self.INPUT,
                 self.tr("Input layer"),
                 types=[QgsProcessing.TypeVectorLine]
+            )
+        )
+
+        self.addParameter(
+            QgsProcessingParameterEnum(
+                self.METHOD,
+                self.tr("Calculate using"),
+                options=self.calc_methods,
+                defaultValue=0,
+            )
+        )
+
+        self.addParameter(
+            QgsProcessingParameterEnum(
+                self.ORIENTATION_ORIGIN,
+                self.tr("Orientations calculated from"),
+                options=self.orientation_origins,
+                defaultValue=0
             )
         )
 
@@ -99,15 +119,6 @@ class MorphALSegmentOrientation(PTM4QgisAlgorithm):
                 self.INTERVAL,
                 self.tr("Interval"),
                 options=self.intervals,
-                defaultValue=0,
-            )
-        )
-
-        self.addParameter(
-            QgsProcessingParameterEnum(
-                self.METHOD,
-                self.tr("Calculate using"),
-                options=self.calc_methods,
                 defaultValue=0,
             )
         )
@@ -178,6 +189,14 @@ class MorphALSegmentOrientation(PTM4QgisAlgorithm):
             )
 
         # Unit:
+        # 0 - East
+        # 1 - North
+        orientation_origin = self.parameterAsEnum(parameters, self.ORIENTATION_ORIGIN, context)
+        from_north = False
+        if orientation_origin == 1:
+            from_north = True
+
+        # Unit:
         # 0 - degree
         # 1 - radian
         # 2 - grade
@@ -223,9 +242,16 @@ class MorphALSegmentOrientation(PTM4QgisAlgorithm):
         fields = source.fields()
 
         new_fields = QgsFields()
-        new_fields.append(QgsField("ORIENTATION", QVariant.Double))
+        if from_north:
+            new_fields.append(QgsField("N_ORIENTATION", QVariant.Double))
+        else:
+            new_fields.append(QgsField("E_ORIENTATION", QVariant.Double))
+
         if classification:
-            new_fields.append(QgsField("CLASSIFICATION", QVariant.Double))
+            if from_north:
+                new_fields.append(QgsField("N_CLASSIFICATION", QVariant.Double))
+            else:
+                new_fields.append(QgsField("E_CLASSIFICATION", QVariant.Double))
 
         fields = QgsProcessingUtils.combineFields(fields, new_fields)
 
@@ -267,10 +293,19 @@ class MorphALSegmentOrientation(PTM4QgisAlgorithm):
                 if coord_transform is not None:
                     geom.transform(coord_transform)
 
-                orientation = geometry_utils.angle(geom, unit, interval, rounded)
+                orientation = geometry_utils.angle_north_east(
+                    geom,
+                    unit,
+                    interval,
+                    rounded,
+                    from_north
+                    )
+
                 if orientation is not None:
                     if classification:
                         class_int = int(orientation / classification_step)
+                        if orientation < 0:
+                            class_int = class_int - 1
                         attrs.extend([orientation, class_int])
                     else:
                         attrs.extend([orientation])
