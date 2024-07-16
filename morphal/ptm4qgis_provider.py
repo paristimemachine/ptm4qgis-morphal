@@ -19,12 +19,12 @@
 
 from qgis.core import QgsProcessingProvider
 
-from .core.morphal_geometry_to_segments import MorphALGeometryToSegments
-from .core.morphal_polygon_perimeter_area import MorphALPolygonPerimeterArea
-from .core.morphal_rectangular_characterisation import (
+from morphal.core.morphal_geometry_to_segments import MorphALGeometryToSegments
+from morphal.core.morphal_polygon_perimeter_area import MorphALPolygonPerimeterArea
+from morphal.core.morphal_rectangular_characterisation import (
     MorphALRectangularCharacterisation,
 )
-from .core.morphal_segment_orientation import MorphALSegmentOrientation
+from morphal.core.morphal_segment_orientation import MorphALSegmentOrientation
 
 
 class PTM4QgisProvider(QgsProcessingProvider):
