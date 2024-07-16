@@ -1,10 +1,10 @@
 [general]
-name=PTM - MorphAL
+name=MorphAL
 about=MorphAL plugin for QGIS
 category=Vector
 hasProcessingProvider=True
 description=MorphAL plugin for QGIS
-tags=morphological analysis, processing
+tags=morphological analysis, processing, vector, PTM
 # icon=resources/images/default_icon.png
 # help=http://help
 
@@ -17,7 +17,7 @@ tracker=https://github.com/paristimemachine/ptm4qgis-morphal/issues
 
 # experimental flag
 deprecated=False
-experimental=True
+experimental=False
 server=False
 qgisMinimumVersion=3.8
 # qgisMinimumVersion=3.28
@@ -25,7 +25,7 @@ qgisMaximumVersion=3.99
 
 # versioning
 version=1.0.0
-changelog=2021/02/01 v1.0.0 First version
+changelog=2021/02/01 v1.0.0 Initial version
 
 # Since QGIS 3.8, a comma separated list of plugins to be installed
 # (or upgraded) can be specified.
