@@ -198,9 +198,7 @@ class MorphALGeometryToSegments(PTM4QgisAlgorithm):
         global segments_renamer
 
         segments_newname = ""
-        segments_newname = '{}-Segments'.format(
-            source.sourceName()
-        )
+        segments_newname = f'{source.sourceName()}-Segments'
 
         if unicity:
             segments_newname += self.tr("-Unicity")
