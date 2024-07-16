@@ -182,13 +182,27 @@ class MorphALSegmentOrientation(PTM4QgisAlgorithm):
         return self.tr("Compute segments orientations")
 
     def processAlgorithm(self, parameters, context, feedback):
+        # input / source
         source = self.parameterAsSource(parameters, self.INPUT, context)
         if source is None:
             raise QgsProcessingException(
                 self.invalidSourceError(parameters, self.INPUT)
             )
 
-        # Unit:
+        wkb_type = source.wkbType()
+
+        if QgsWkbTypes.geometryType(wkb_type) != QgsWkbTypes.LineGeometry:
+            feedback.reportError("The layer geometry type is different from a line")
+            return {}
+
+        if source.featureCount() == 0:
+            feedback.reportError(
+                self.tr("The layer doesn't contain any feature: no output provided")
+            )
+            return {}
+
+        # other parameters
+        # Orientation origin:
         # 0 - East
         # 1 - North
         orientation_origin = self.parameterAsEnum(parameters, self.ORIENTATION_ORIGIN, context)
@@ -227,18 +241,7 @@ class MorphALSegmentOrientation(PTM4QgisAlgorithm):
         #     parameters, self.HISTOGRAM_STEP, context
         # )
 
-        wkb_type = source.wkbType()
-
-        if QgsWkbTypes.geometryType(wkb_type) != QgsWkbTypes.LineGeometry:
-            feedback.reportError("The layer geometry type is different from a line")
-            return {}
-
-        if source.featureCount() == 0:
-            feedback.reportError(
-                self.tr("The layer doesn't contain any feature: no output provided")
-            )
-            return {}
-
+        # output
         fields = source.fields()
 
         new_fields = QgsFields()
@@ -263,6 +266,7 @@ class MorphALSegmentOrientation(PTM4QgisAlgorithm):
                 self.invalidSinkError(parameters, self.OUTPUT)
             )
 
+        # process
         coord_transform = None
 
         self.distance_area = QgsDistanceArea()
