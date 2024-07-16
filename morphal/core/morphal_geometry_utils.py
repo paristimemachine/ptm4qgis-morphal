@@ -395,7 +395,7 @@ def surface_distance(
 def angle(
         geometry: QgsGeometry,
         unit: int,
-        interval: float,
+        interval: int,
         accuracy: bool
 ):
     """
@@ -453,7 +453,7 @@ def angle(
 def angle_north_east(
         geometry: QgsGeometry,
         unit: int,
-        interval: float,
+        interval: int,
         accuracy: bool,
         from_north: bool = False
 ):
@@ -499,3 +499,88 @@ def angle_north_east(
         angle_output = round_float_to_3_decimals(angle_output)
 
     return angle_output
+
+
+
+
+def median_segment(
+        geom: QgsGeometry,
+        from_north: bool,
+        distance_area: QgsDistanceArea
+):
+    """
+    Compute if a polygon has a rectangular shape or not, based on the comparison
+    with two shapes: the shape of the minimum bounding rectangle of the polygon,
+    and the shape of the convex hull associated to the polygon. This comparison
+    is computed thanks to two thresholds (threshold of maximums), one for each associated
+    shape. If the shape is rectangular, the orientation (in degrees) based on the is returned;
+    otherwise, the value of -1.0 is returned. Finally, if the returned value equals -2.0,
+    it means that the MBR can not be computed.
+
+    :param QgsPolygon polygon: polygon to process
+    :param QgsDistanceArea distance_area: distance area
+    :return:
+      - the surface distance between the polygon and its convex hull,
+      - the surface distance between the polygon and its associated minimum bounding rectangle,
+      - the orientation in degrees of the polygon, based on the orientation of the associated minimum bounding rectangle,
+      -1.0 if the polygon shape is not defined as a rectangle, and -2.0 if the convex hull or MBR can not be computed
+    """
+
+    mbr_orientation = -1.0
+    mbr_length = -1.0
+    mbr_elongation = -1.0
+
+    # orientedMinimumBoundingBox(self) → Tuple[QgsGeometry, float, float, float, float]
+    # angle (clockwise in degrees from North)
+    (mbr, area, angle, width, height) = geom.orientedMinimumBoundingBox()
+
+    if mbr.isNull() or mbr.isEmpty():
+        return None, mbr_orientation, mbr_length, mbr_elongation
+
+    mbr_elongation = -1.0
+    if width >= height:
+        mbr_elongation = width / height
+    else:
+        mbr_elongation = height / width
+
+    # IMPROVE
+    vertices = _geometry_vertices(mbr, 3)
+
+    v0 = QgsPoint(vertices[0].x(), vertices[0].y())
+    v1 = QgsPoint(vertices[1].x(), vertices[1].y())
+    v2 = QgsPoint(vertices[2].x(), vertices[2].y())
+
+    length = v0.distanceSquared(v1.x(), v1.y())
+    length2 = v1.distanceSquared(v2.x(), v2.y())
+
+    if length > length2:
+        v_mid_1 = QgsPoint(
+            (vertices[0].x() + vertices[3].x()) / 2.0,
+            (vertices[0].y() + vertices[3].y()) / 2.0
+        )
+        v_mid_2 = QgsPoint(
+            (vertices[1].x() + vertices[2].x()) / 2.0,
+            (vertices[1].y() + vertices[2].y()) / 2.0,
+        )
+    else:
+        v_mid_1 = QgsPoint(
+            (vertices[0].x() + vertices[1].x()) / 2.0,
+            (vertices[0].y() + vertices[1].y()) / 2.0
+        )
+        v_mid_2 = QgsPoint(
+            (vertices[2].x() + vertices[3].x()) / 2.0,
+            (vertices[2].y() + vertices[3].y()) / 2.0,
+        )
+
+    median_geom = create_normalized_segment(v_mid_1, v_mid_2)
+    median_orientation = angle_north_east(
+        median_geom,
+        0,
+        0,
+        True,
+        from_north
+        )
+
+    median_length = distance_area.measureLength(median_geom)
+
+    return median_geom, median_orientation, median_length, mbr_elongation
