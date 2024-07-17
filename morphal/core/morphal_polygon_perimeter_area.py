@@ -36,6 +36,8 @@ from qgis.PyQt.QtCore import QVariant
 
 from morphal.ptm4qgis_algorithm import PTM4QgisAlgorithm
 
+from .utils import LayerRenamer
+
 
 class MorphALPolygonPerimeterArea(PTM4QgisAlgorithm):
     INPUT = "INPUT"
@@ -46,7 +48,7 @@ class MorphALPolygonPerimeterArea(PTM4QgisAlgorithm):
         return self.tr("\
             This algorithm computes polygon perimeters and areas in a vector layer.\
             \nIt creates a new vector layer with the same content as the input one, but with\
-            additional computed attributes : perimeter and area.")
+            additional computed attributes: perimeter and area.")
 
     def __init__(self):
         super().__init__()
@@ -172,6 +174,16 @@ class MorphALPolygonPerimeterArea(PTM4QgisAlgorithm):
             sink.addFeature(out_feat, QgsFeatureSink.FastInsert)
 
             feedback.setProgress(int(current * total))
+
+        # rename output layer
+        global area_perimeter_renamer
+
+        area_perimeter_newname = f'{source.sourceName()}-'
+        area_perimeter_newname += self.tr("Perimeter-Area")
+
+        area_perimeter_renamer = LayerRenamer(area_perimeter_newname)
+        context.layerToLoadOnCompletionDetails(
+            dest_id).setPostProcessor(area_perimeter_renamer)
 
         return {self.OUTPUT: dest_id}
 

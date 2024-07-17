@@ -243,56 +243,61 @@ La table d'attributs de la couche de sortie est identique à de la couche d'entr
 <context>
     <name>MorphALPolygonPerimeterArea</name>
     <message>
-        <location filename="../../core/morphal_polygon_perimeter_area.py" line="88"/>
+        <location filename="../../core/morphal_polygon_perimeter_area.py" line="90"/>
         <source>Add polygon perimeters and areas</source>
         <translation>Ajouter périmètres et aires à une couche vectorielle polygonale</translation>
     </message>
     <message>
-        <location filename="../../core/morphal_polygon_perimeter_area.py" line="55"/>
+        <location filename="../../core/morphal_polygon_perimeter_area.py" line="57"/>
         <source>Layer CRS</source>
         <translation>SCR de la couche</translation>
     </message>
     <message>
-        <location filename="../../core/morphal_polygon_perimeter_area.py" line="56"/>
+        <location filename="../../core/morphal_polygon_perimeter_area.py" line="58"/>
         <source>Project CRS</source>
         <translation>SCR du projet</translation>
     </message>
     <message>
-        <location filename="../../core/morphal_polygon_perimeter_area.py" line="57"/>
+        <location filename="../../core/morphal_polygon_perimeter_area.py" line="59"/>
         <source>Ellipsoidal</source>
         <translation>Ellipsoïdale</translation>
     </message>
     <message>
-        <location filename="../../core/morphal_polygon_perimeter_area.py" line="61"/>
+        <location filename="../../core/morphal_polygon_perimeter_area.py" line="63"/>
         <source>Input layer</source>
         <translation>Couche source</translation>
     </message>
     <message>
-        <location filename="../../core/morphal_polygon_perimeter_area.py" line="69"/>
+        <location filename="../../core/morphal_polygon_perimeter_area.py" line="71"/>
         <source>Calculate using</source>
         <translation>Calculer en utilisant</translation>
     </message>
     <message>
-        <location filename="../../core/morphal_polygon_perimeter_area.py" line="78"/>
+        <location filename="../../core/morphal_polygon_perimeter_area.py" line="80"/>
         <source>Layer with added perimeters and areas</source>
         <translation>Couche avec périmètres et aires ajoutés</translation>
     </message>
     <message>
-        <location filename="../../core/morphal_polygon_perimeter_area.py" line="143"/>
+        <location filename="../../core/morphal_polygon_perimeter_area.py" line="145"/>
         <source>No project is available in this context</source>
         <translation>Aucun projet disponible dans ce contexte</translation>
     </message>
     <message>
-        <location filename="../../core/morphal_polygon_perimeter_area.py" line="46"/>
+        <location filename="../../core/morphal_polygon_perimeter_area.py" line="48"/>
         <source>            This algorithm computes polygon perimeters and areas in a vector layer.            
-It creates a new vector layer with the same content as the input one, but with            additional computed attributes : perimeter and area.</source>
+It creates a new vector layer with the same content as the input one, but with            additional computed attributes: perimeter and area.</source>
         <translation>Cet algorithme calcule les périmètres et les aires des entités d'une couche vectorielle dont le type géométrique associé est polygonal. 
 Il génère une nouvelle couche vectorielle avec le même contenu que la couche d'entrée, mais avec des attributs supplémentaires : périmètre et aire.</translation>
     </message>
     <message>
-        <location filename="../../core/morphal_polygon_perimeter_area.py" line="105"/>
+        <location filename="../../core/morphal_polygon_perimeter_area.py" line="107"/>
         <source>The layer doesn&apos;t contain any feature: no output provided</source>
         <translation>La couche ne contient aucun objet : aucun résultat n'est fourni</translation>
+    </message>
+    <message>
+        <location filename="../../core/morphal_polygon_perimeter_area.py" line="182"/>
+        <source>Perimeter-Area</source>
+        <translation>Perimetre-Aire</translation>
     </message>
 </context>
 <context>
