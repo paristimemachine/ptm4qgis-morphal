@@ -505,23 +505,23 @@ class MorphALRectangularCharacterisation(PTM4QgisAlgorithm):
 
         global rect_1_renamer, rect_2_renamer, rect_3_renamer, rect_all_indicators_renamer
 
-        rect_1_newname = f'{source.sourceName()}-Rectangles-Level_1-{sd_convex_level_2}-{sd_mbr_level_2}'
+        rect_1_newname = f'{source.sourceName()}-{self.tr("Rectangles-Level_1")}-{sd_convex_level_2}-{sd_mbr_level_2}'
 
         rect_1_renamer = LayerRenamer(rect_1_newname)
         context.layerToLoadOnCompletionDetails(
             rect_1_output_dest_id).setPostProcessor(rect_1_renamer)
 
-        rect_2_newname = f'{source.sourceName()}-Rectangles-Level_2-{sd_convex_level_2}-{sd_mbr_level_2}'
+        rect_2_newname = f'{source.sourceName()}-{self.tr("Rectangles-Level_2")}-{sd_convex_level_2}-{sd_mbr_level_2}'
         rect_2_renamer = LayerRenamer(rect_2_newname)
         context.layerToLoadOnCompletionDetails(
             rect_2_output_dest_id).setPostProcessor(rect_2_renamer)
 
-        rect_3_newname = f'{source.sourceName()}-Rectangles-Level_3-{sd_convex_level_2}-{sd_mbr_level_2}'
+        rect_3_newname = f'{source.sourceName()}-{self.tr("Rectangles-Level_3")}-{sd_convex_level_2}-{sd_mbr_level_2}'
         rect_3_renamer = LayerRenamer(rect_3_newname)
         context.layerToLoadOnCompletionDetails(
             rect_3_output_dest_id).setPostProcessor(rect_3_renamer)
 
-        rect_all_indicators_newname = f'{source.sourceName()}-Rectangles-All_indicators'
+        rect_all_indicators_newname = f'{source.sourceName()}-{self.tr("Rectangles-All_indicators")}'
         rect_all_indicators_renamer = LayerRenamer(rect_all_indicators_newname)
         context.layerToLoadOnCompletionDetails(
             rect_all_indicators_output_dest_id).setPostProcessor(rect_all_indicators_renamer)

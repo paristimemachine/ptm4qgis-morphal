@@ -190,17 +190,17 @@ La table d'attributs de la couche de sortie est identique à de la couche d'entr
         <translation>Indicateurs morphologiques</translation>
     </message>
     <message>
-        <location filename="../../core/polygon_indicators.py" line="344"/>
+        <location filename="../../core/polygon_indicators.py" line="343"/>
         <source>No project is available in this context</source>
         <translation>Aucun projet disponible dans ce contexte</translation>
     </message>
     <message>
-        <location filename="../../core/polygon_indicators.py" line="207"/>
+        <location filename="../../core/polygon_indicators.py" line="206"/>
         <source>Compute morphological indicators for polygons</source>
         <translation>Calculer des indicateurs morphologiques pour polygones</translation>
     </message>
     <message>
-        <location filename="../../core/polygon_indicators.py" line="224"/>
+        <location filename="../../core/polygon_indicators.py" line="223"/>
         <source>The layer doesn&apos;t contain any feature: no output provided</source>
         <translation>La couche ne contient aucun objet : aucun résultat n'est fourni</translation>
     </message>
@@ -238,6 +238,11 @@ La table d'attributs de la couche de sortie est identique à de la couche d'entr
         <location filename="../../core/polygon_indicators.py" line="188"/>
         <source>Rectangular difference</source>
         <translation>Différence au rectangle</translation>
+    </message>
+    <message>
+        <location filename="../../core/polygon_indicators.py" line="394"/>
+        <source>Morphological_indicators</source>
+        <translation>Indicateurs_morphologiques</translation>
     </message>
 </context>
 <context>

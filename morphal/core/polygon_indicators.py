@@ -199,7 +199,6 @@ class MorphALPolygonIndicators(PTM4QgisAlgorithm):
             )
         )
 
-
     def name(self):
         return "polygon_morphological_indicators"
 
@@ -352,7 +351,7 @@ class MorphALPolygonIndicators(PTM4QgisAlgorithm):
         total = 100.0 / source.featureCount() if source.featureCount() else 0
         for current, f in enumerate(features):
             if feedback.isCanceled():
-                break
+                return {}
 
             out_feat = f
             attrs = f.attributes()
@@ -388,6 +387,16 @@ class MorphALPolygonIndicators(PTM4QgisAlgorithm):
 
             feedback.setProgress(int(current * total))
 
+        # rename output layer
+        global morph_indicators_renamer
+
+        morph_indicators_newname = f'{source.sourceName()}-'
+        morph_indicators_newname += self.tr("Morphological_indicators")
+
+        morph_indicators_renamer = LayerRenamer(morph_indicators_newname)
+        context.layerToLoadOnCompletionDetails(
+            dest_id).setPostProcessor(morph_indicators_renamer)
+
         return {self.OUTPUT_LAYER: dest_id}
 
     def polygon_indicators(
@@ -409,6 +418,10 @@ class MorphALPolygonIndicators(PTM4QgisAlgorithm):
         indicators = []
         perimeter = self.distance_area.measurePerimeter(polygon)
         area = self.distance_area.measureArea(polygon)
+
+        # TODO IMPROVE
+        if area <= 0.000000001:
+            return indicators
 
         convex_hull = polygon.convexHull()
         convex_hull_perimeter = self.distance_area.measurePerimeter(convex_hull)
