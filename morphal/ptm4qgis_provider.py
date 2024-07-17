@@ -26,6 +26,7 @@ from morphal.core.morphal_rectangular_characterisation import (
     MorphALRectangularCharacterisation,
 )
 from morphal.core.morphal_segment_orientation import MorphALSegmentOrientation
+from morphal.core.polygon_indicators import MorphALPolygonIndicators
 
 
 class PTM4QgisProvider(QgsProcessingProvider):
@@ -41,6 +42,7 @@ class PTM4QgisProvider(QgsProcessingProvider):
             MorphALGeometryToSegments(),
             MorphALGeometryToMedians(),
             MorphALSegmentOrientation(),
+            MorphALPolygonIndicators(),
             MorphALRectangularCharacterisation(),
         ]
 
