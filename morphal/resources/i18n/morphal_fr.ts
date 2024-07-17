@@ -2,6 +2,83 @@
 <!DOCTYPE TS>
 <TS version="2.1" language="fr">
 <context>
+    <name>MorphALGeometryToMedians</name>
+    <message>
+        <location filename="../../core/geometry_to_medians.py" line="53"/>
+        <source>            This algorithm generates a segment layer representing the medians of the geometries            from an input line layer or an input polygon layer.            
+These segments are normalised, i.e. their point of origin is always located as far west             as possible, or otherwise as far south as possible.            
+It creates a new vector layer with the same content as the input one, but with            additional computed attributes: median orientation, computed from East or from North,            median length and median associated elongation.</source>
+        <translation>Cet algorithme génère une couche de segments représentant les médianes à partir d'une couche de lignes ou de polygones en entrée.
+Ces segments sont normalisés, i.e. que leur point d'origine est toujours situé le plus à l'ouest possible, ou à défaut le plus au sud possible.
+Il génère une nouvelle couche vectorielle avec le même contenu que la couche d'entrée, mais avec des attributs supplémentaires: les orientations des médianes, calculées depuis l'est ou le nord, les longueurs des médianes et les élongations associées aux médianes.</translation>
+    </message>
+    <message>
+        <location filename="../../core/geometry_to_medians.py" line="65"/>
+        <source>Layer CRS</source>
+        <translation>SCR de la couche</translation>
+    </message>
+    <message>
+        <location filename="../../core/geometry_to_medians.py" line="66"/>
+        <source>Project CRS</source>
+        <translation>SCR du projet</translation>
+    </message>
+    <message>
+        <location filename="../../core/geometry_to_medians.py" line="67"/>
+        <source>Ellipsoidal</source>
+        <translation>Ellipsoïdale</translation>
+    </message>
+    <message>
+        <location filename="../../core/geometry_to_medians.py" line="276"/>
+        <source>East</source>
+        <translation>Est</translation>
+    </message>
+    <message>
+        <location filename="../../core/geometry_to_medians.py" line="274"/>
+        <source>North</source>
+        <translation>Nord</translation>
+    </message>
+    <message>
+        <location filename="../../core/geometry_to_medians.py" line="75"/>
+        <source>Input layer</source>
+        <translation>Couche source</translation>
+    </message>
+    <message>
+        <location filename="../../core/geometry_to_medians.py" line="83"/>
+        <source>Calculate using</source>
+        <translation>Calculer en utilisant</translation>
+    </message>
+    <message>
+        <location filename="../../core/geometry_to_medians.py" line="92"/>
+        <source>Orientations calculated from</source>
+        <translation>Orientations calculées à partir de la direction</translation>
+    </message>
+    <message>
+        <location filename="../../core/geometry_to_medians.py" line="101"/>
+        <source>Medians</source>
+        <translation>Médianes</translation>
+    </message>
+    <message>
+        <location filename="../../core/geometry_to_medians.py" line="113"/>
+        <source>Geometries to medians</source>
+        <translation>Lignes ou polygones vers médianes</translation>
+    </message>
+    <message>
+        <location filename="../../core/geometry_to_medians.py" line="129"/>
+        <source>The layer geometry type is different from a line or a polygon</source>
+        <translation>Le type géométrique de la couche source est différent d'un type linéaire ou polygonal</translation>
+    </message>
+    <message>
+        <location filename="../../core/geometry_to_medians.py" line="135"/>
+        <source>The layer doesn&apos;t contain any feature: no output provided</source>
+        <translation>La couche ne contient aucun objet : aucun résultat n'est fourni</translation>
+    </message>
+    <message>
+        <location filename="../../core/geometry_to_medians.py" line="203"/>
+        <source>No project is available in this context</source>
+        <translation>Aucun projet disponible dans ce contexte</translation>
+    </message>
+</context>
+<context>
     <name>MorphALGeometryToSegments</name>
     <message>
         <location filename="../../core/morphal_geometry_to_segments.py" line="59"/>
@@ -29,7 +106,7 @@
         <translation>La couche ne contient aucun objet : aucun résultat n'est fourni</translation>
     </message>
     <message>
-        <location filename="../../core/morphal_geometry_to_segments.py" line="206"/>
+        <location filename="../../core/morphal_geometry_to_segments.py" line="204"/>
         <source>-Unicity</source>
         <translation>-Unicite</translation>
     </message>
@@ -47,7 +124,7 @@ La table d'attributs de la couche de sortie est identique à de la couche d'entr
     <message>
         <location filename="../../core/morphal_geometry_to_segments.py" line="87"/>
         <source>Geometries to segments</source>
-        <translation>Géométries vers segments</translation>
+        <translation type="unfinished">Lignes ou polygones vers segments</translation>
     </message>
 </context>
 <context>
@@ -156,16 +233,16 @@ La table d'attributs de la couche de sortie est identique à de la couche d'entr
         <translation>Couche avec périmètres et aires ajoutés</translation>
     </message>
     <message>
-        <location filename="../../core/morphal_polygon_perimeter_area.py" line="142"/>
+        <location filename="../../core/morphal_polygon_perimeter_area.py" line="143"/>
         <source>No project is available in this context</source>
         <translation>Aucun projet disponible dans ce contexte</translation>
     </message>
     <message>
         <location filename="../../core/morphal_polygon_perimeter_area.py" line="46"/>
         <source>            This algorithm computes polygon perimeters and areas in a vector layer.            
-It generates a new vector layer with the same content as the input one, but with            additional attributes in its attributes table: : perimeter and area.</source>
+It creates a new vector layer with the same content as the input one, but with            additional computed attributes : perimeter and area.</source>
         <translation>Cet algorithme calcule les périmètres et les aires des entités d'une couche vectorielle dont le type géométrique associé est polygonal. 
-Il génère une nouvelle couche vectorielle avec le même contenu que la couche d'entrée, mais avec des attributs supplémentaires dans sa table d'attributs : périmètre et aire.</translation>
+Il génère une nouvelle couche vectorielle avec le même contenu que la couche d'entrée, mais avec des attributs supplémentaires : périmètre et aire.</translation>
     </message>
     <message>
         <location filename="../../core/morphal_polygon_perimeter_area.py" line="105"/>
@@ -286,124 +363,131 @@ Il génère une nouvelle couche vectorielle avec le même contenu que la couche 
     <message>
         <location filename="../../core/morphal_segment_orientation.py" line="59"/>
         <source>Compute the orientations of a layer of segments</source>
-        <translation>Cet algorithme calcule les orientations d'une couche vectorielle dont les entités sont des segments. 
+        <translation type="obsolete">Cet algorithme calcule les orientations d'une couche vectorielle dont les entités sont des segments. 
 Il génère une nouvelle couche vectorielle avec le même contenu que la couche d'entrée, mais avec des attributs supplémentaires dans sa table d'attributs : orientation, calculée depuis l'est ou le nord, et en option, une classifation à partir de ces orientations à partir d'un seuil de classificiation à définir.</translation>
     </message>
     <message>
-        <location filename="../../core/morphal_segment_orientation.py" line="72"/>
+        <location filename="../../core/morphal_segment_orientation.py" line="76"/>
         <source>Degree</source>
         <translation>Degré</translation>
     </message>
     <message>
-        <location filename="../../core/morphal_segment_orientation.py" line="73"/>
+        <location filename="../../core/morphal_segment_orientation.py" line="77"/>
         <source>Radian</source>
         <translation>Radian</translation>
     </message>
     <message>
-        <location filename="../../core/morphal_segment_orientation.py" line="74"/>
+        <location filename="../../core/morphal_segment_orientation.py" line="78"/>
         <source>Grade</source>
         <translation>Grade</translation>
     </message>
     <message>
-        <location filename="../../core/morphal_segment_orientation.py" line="77"/>
+        <location filename="../../core/morphal_segment_orientation.py" line="81"/>
         <source>[0 ; Pi[</source>
         <translation>[0 ; Pi[</translation>
     </message>
     <message>
-        <location filename="../../core/morphal_segment_orientation.py" line="78"/>
+        <location filename="../../core/morphal_segment_orientation.py" line="82"/>
         <source>[0 ; Pi/2[</source>
         <translation>[0 ; Pi/2[</translation>
     </message>
     <message>
-        <location filename="../../core/morphal_segment_orientation.py" line="64"/>
+        <location filename="../../core/morphal_segment_orientation.py" line="68"/>
         <source>Layer CRS</source>
         <translation>SCR de la couche</translation>
     </message>
     <message>
-        <location filename="../../core/morphal_segment_orientation.py" line="65"/>
+        <location filename="../../core/morphal_segment_orientation.py" line="69"/>
         <source>Project CRS</source>
         <translation>SCR du projet</translation>
     </message>
     <message>
-        <location filename="../../core/morphal_segment_orientation.py" line="66"/>
+        <location filename="../../core/morphal_segment_orientation.py" line="70"/>
         <source>Ellipsoidal</source>
         <translation>Ellipsoïdale</translation>
     </message>
     <message>
-        <location filename="../../core/morphal_segment_orientation.py" line="83"/>
+        <location filename="../../core/morphal_segment_orientation.py" line="87"/>
         <source>Input layer</source>
         <translation>Couche source</translation>
     </message>
     <message>
-        <location filename="../../core/morphal_segment_orientation.py" line="109"/>
+        <location filename="../../core/morphal_segment_orientation.py" line="113"/>
         <source>Unit</source>
         <translation>Unité</translation>
     </message>
     <message>
-        <location filename="../../core/morphal_segment_orientation.py" line="118"/>
+        <location filename="../../core/morphal_segment_orientation.py" line="122"/>
         <source>Interval</source>
         <translation>Intervalle</translation>
     </message>
     <message>
-        <location filename="../../core/morphal_segment_orientation.py" line="91"/>
+        <location filename="../../core/morphal_segment_orientation.py" line="95"/>
         <source>Calculate using</source>
         <translation>Calculer en utilisant</translation>
     </message>
     <message>
-        <location filename="../../core/morphal_segment_orientation.py" line="127"/>
+        <location filename="../../core/morphal_segment_orientation.py" line="131"/>
         <source>Round orientations to 3 decimals</source>
         <translation>Arrondir les orientations à 3 décimales</translation>
     </message>
     <message>
-        <location filename="../../core/morphal_segment_orientation.py" line="135"/>
+        <location filename="../../core/morphal_segment_orientation.py" line="139"/>
         <source>Compute a classification</source>
         <translation>Calculer une classification</translation>
     </message>
     <message>
-        <location filename="../../core/morphal_segment_orientation.py" line="143"/>
+        <location filename="../../core/morphal_segment_orientation.py" line="147"/>
         <source>Step of the classification</source>
         <translation>Pas de la classification</translation>
     </message>
     <message>
-        <location filename="../../core/morphal_segment_orientation.py" line="200"/>
+        <location filename="../../core/morphal_segment_orientation.py" line="204"/>
         <source>The layer doesn&apos;t contain any feature: no output provided</source>
         <translation>La couche ne contient aucun objet : aucun résultat n'est fourni</translation>
     </message>
     <message>
-        <location filename="../../core/morphal_segment_orientation.py" line="281"/>
+        <location filename="../../core/morphal_segment_orientation.py" line="286"/>
         <source>No project is available in this context</source>
         <translation>Aucun projet disponible dans ce contexte</translation>
     </message>
     <message>
-        <location filename="../../core/morphal_segment_orientation.py" line="171"/>
+        <location filename="../../core/morphal_segment_orientation.py" line="175"/>
         <source>Segments with orientations</source>
         <translation>Segments avec orientations</translation>
     </message>
     <message>
-        <location filename="../../core/morphal_segment_orientation.py" line="183"/>
+        <location filename="../../core/morphal_segment_orientation.py" line="187"/>
         <source>Compute segments orientations</source>
         <translation>Calculer les orientations d'une couche de segments</translation>
     </message>
     <message>
-        <location filename="../../core/morphal_segment_orientation.py" line="339"/>
+        <location filename="../../core/morphal_segment_orientation.py" line="342"/>
         <source>East</source>
         <translation>Est</translation>
     </message>
     <message>
-        <location filename="../../core/morphal_segment_orientation.py" line="337"/>
+        <location filename="../../core/morphal_segment_orientation.py" line="340"/>
         <source>North</source>
         <translation>Nord</translation>
     </message>
     <message>
-        <location filename="../../core/morphal_segment_orientation.py" line="100"/>
+        <location filename="../../core/morphal_segment_orientation.py" line="104"/>
         <source>Orientations calculated from</source>
-        <translation type="unfinished">Orientations calculées à partir de la direction</translation>
+        <translation>Orientations calculées à partir de la direction</translation>
+    </message>
+    <message>
+        <location filename="../../core/morphal_segment_orientation.py" line="59"/>
+        <source>            This algorithm computes the orientations of a layer of segments.            
+It generates a new vector layer with the same content as the input one, but with            additional attributes: orientation, computed from East or from North, and if specified,            a classification based on the computed orientations and a classification step to specify.</source>
+        <translation>Cet algorithme calcule les orientations d'une couche vectorielle dont les entités sont des segments. 
+Il génère une nouvelle couche vectorielle avec le même contenu que la couche d'entrée, mais avec des attributs supplémentaires: orientation, calculée depuis l'est ou le nord, et en option, une classification à partir de ces orientations à partir d'un seuil de classificiation à définir.</translation>
     </message>
 </context>
 <context>
     <name>PTM4QgisProvider</name>
     <message>
-        <location filename="../../ptm4qgis_provider.py" line="77"/>
+        <location filename="../../ptm4qgis_provider.py" line="78"/>
         <source>PTM-MorphAL</source>
         <translation>PTM-MorphAL</translation>
     </message>
