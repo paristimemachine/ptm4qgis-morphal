@@ -24,7 +24,8 @@ qgisMinimumVersion=3.8
 qgisMaximumVersion=3.99
 
 # versioning
-version=1.0.0
+version=1.1e.0
+changelog=2024/07/17 v1.1.0 New morphological indicators, perf improvements
 changelog=2021/02/01 v1.0.0 Initial version
 
 # Since QGIS 3.8, a comma separated list of plugins to be installed
