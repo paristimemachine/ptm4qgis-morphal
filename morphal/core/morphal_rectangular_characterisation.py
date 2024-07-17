@@ -307,8 +307,6 @@ class MorphALRectangularCharacterisation(PTM4QgisAlgorithm):
             )
             return {}
 
-        source_layer = self.parameterAsLayer(parameters, self.INPUT_LAYER, context)
-
         rect_level_1 = self.parameterAsBoolean(
             parameters, self.RECTANGLE_LEVEL_1, context
         )
@@ -507,36 +505,23 @@ class MorphALRectangularCharacterisation(PTM4QgisAlgorithm):
 
         global rect_1_renamer, rect_2_renamer, rect_3_renamer, rect_all_indicators_renamer
 
-        rect_1_newname = '{}-Rectangles-Level_1-{}-{}'.format(
-            source_layer.name(),
-            sd_convex_level_1,
-            sd_mbr_level_1
-        )
+        rect_1_newname = f'{source.sourceName()}-Rectangles-Level_1-{sd_convex_level_2}-{sd_mbr_level_2}'
+
         rect_1_renamer = LayerRenamer(rect_1_newname)
         context.layerToLoadOnCompletionDetails(
             rect_1_output_dest_id).setPostProcessor(rect_1_renamer)
 
-        rect_2_newname = '{}-Rectangles-Level_2-{}-{}'.format(
-            source_layer.name(),
-            sd_convex_level_2,
-            sd_mbr_level_2
-        )
+        rect_2_newname = f'{source.sourceName()}-Rectangles-Level_2-{sd_convex_level_2}-{sd_mbr_level_2}'
         rect_2_renamer = LayerRenamer(rect_2_newname)
         context.layerToLoadOnCompletionDetails(
             rect_2_output_dest_id).setPostProcessor(rect_2_renamer)
 
-        rect_3_newname = '{}-Rectangles-Level_3-{}-{}'.format(
-            source_layer.name(),
-            sd_convex_level_3,
-            sd_mbr_level_3
-        )
+        rect_3_newname = f'{source.sourceName()}-Rectangles-Level_3-{sd_convex_level_2}-{sd_mbr_level_2}'
         rect_3_renamer = LayerRenamer(rect_3_newname)
         context.layerToLoadOnCompletionDetails(
             rect_3_output_dest_id).setPostProcessor(rect_3_renamer)
 
-        rect_all_indicators_newname = '{}-Rectangles-All_indicators'.format(
-            source_layer.name()
-        )
+        rect_all_indicators_newname = f'{source.sourceName()}-Rectangles-All_indicators'
         rect_all_indicators_renamer = LayerRenamer(rect_all_indicators_newname)
         context.layerToLoadOnCompletionDetails(
             rect_all_indicators_output_dest_id).setPostProcessor(rect_all_indicators_renamer)
