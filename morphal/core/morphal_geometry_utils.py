@@ -143,6 +143,7 @@ def _geometry_vertices(
             return vertices
 
         i += 1
+    return vertices
 
 
 def _geometry_num_vertices(geometry: QgsGeometry):
@@ -501,8 +502,6 @@ def angle_north_east(
     return angle_output
 
 
-
-
 def median_segment(
         geom: QgsGeometry,
         from_north: bool,
@@ -526,32 +525,48 @@ def median_segment(
       -1.0 if the polygon shape is not defined as a rectangle, and -2.0 if the convex hull or MBR can not be computed
     """
 
-    mbr_orientation = -1.0
-    mbr_length = -1.0
-    mbr_elongation = -1.0
+    median_orientation = -1.0
+    median_length = -1.0
+    median_elongation = -1.0
+
+    # geometry is a segment
+    if _geometry_num_vertices(geom) == 2:
+        geom_vertices = _geometry_vertices(geom, 2)
+        seg_point_0 = QgsPoint(geom_vertices[0].x(), geom_vertices[0].y())
+        seg_point_1 = QgsPoint(geom_vertices[1].x(), geom_vertices[1].y())
+
+        median_geom = create_normalized_segment(seg_point_0, seg_point_1)
+        median_orientation = angle_north_east(
+            median_geom,
+            0,
+            0,
+            True,
+            from_north
+            )
+
+        median_length = distance_area.measureLength(median_geom)
+
+        return median_geom, median_orientation, median_length, median_elongation
 
     # orientedMinimumBoundingBox(self) → Tuple[QgsGeometry, float, float, float, float]
     # angle (clockwise in degrees from North)
     (mbr, area, angle, width, height) = geom.orientedMinimumBoundingBox()
 
     if mbr.isNull() or mbr.isEmpty():
-        return None, mbr_orientation, mbr_length, mbr_elongation
+        return None, median_orientation, median_length, median_elongation
 
-    mbr_elongation = -1.0
     if width >= height:
-        mbr_elongation = width / height
+        median_elongation = width / height
     else:
-        mbr_elongation = height / width
+        median_elongation = height / width
 
-    # IMPROVE
     vertices = _geometry_vertices(mbr, 3)
 
     v0 = QgsPoint(vertices[0].x(), vertices[0].y())
     v1 = QgsPoint(vertices[1].x(), vertices[1].y())
-    v2 = QgsPoint(vertices[2].x(), vertices[2].y())
 
     length = v0.distanceSquared(v1.x(), v1.y())
-    length2 = v1.distanceSquared(v2.x(), v2.y())
+    length2 = v1.distanceSquared(vertices[2].x(), vertices[2].y())
 
     if length > length2:
         v_mid_1 = QgsPoint(
@@ -583,4 +598,4 @@ def median_segment(
 
     median_length = distance_area.measureLength(median_geom)
 
-    return median_geom, median_orientation, median_length, mbr_elongation
+    return median_geom, median_orientation, median_length, median_elongation
