@@ -4,7 +4,7 @@
 <context>
     <name>MorphALGeometryToMedians</name>
     <message>
-        <location filename="../../core/geometry_to_medians.py" line="53"/>
+        <location filename="../../core/geometry_to_medians.py" line="50"/>
         <source>            This algorithm generates a segment layer representing the medians of the geometries            from an input line layer or an input polygon layer.            
 These segments are normalised, i.e. their point of origin is always located as far west             as possible, or otherwise as far south as possible.            
 It creates a new vector layer with the same content as the input one, but with            additional computed attributes: median orientation, computed from East or from North,            median length and median associated elongation.</source>
@@ -13,67 +13,67 @@ Ces segments sont normalisés, i.e. que leur point d'origine est toujours situé
 Il génère une nouvelle couche vectorielle avec le même contenu que la couche d'entrée, mais avec des attributs supplémentaires: les orientations des médianes, calculées depuis l'est ou le nord, les longueurs des médianes et les élongations associées aux médianes.</translation>
     </message>
     <message>
-        <location filename="../../core/geometry_to_medians.py" line="65"/>
+        <location filename="../../core/geometry_to_medians.py" line="62"/>
         <source>Layer CRS</source>
         <translation>SCR de la couche</translation>
     </message>
     <message>
-        <location filename="../../core/geometry_to_medians.py" line="66"/>
+        <location filename="../../core/geometry_to_medians.py" line="63"/>
         <source>Project CRS</source>
         <translation>SCR du projet</translation>
     </message>
     <message>
-        <location filename="../../core/geometry_to_medians.py" line="67"/>
+        <location filename="../../core/geometry_to_medians.py" line="64"/>
         <source>Ellipsoidal</source>
         <translation>Ellipsoïdale</translation>
     </message>
     <message>
-        <location filename="../../core/geometry_to_medians.py" line="276"/>
+        <location filename="../../core/geometry_to_medians.py" line="250"/>
         <source>East</source>
         <translation>Est</translation>
     </message>
     <message>
-        <location filename="../../core/geometry_to_medians.py" line="274"/>
+        <location filename="../../core/geometry_to_medians.py" line="248"/>
         <source>North</source>
         <translation>Nord</translation>
     </message>
     <message>
-        <location filename="../../core/geometry_to_medians.py" line="75"/>
+        <location filename="../../core/geometry_to_medians.py" line="71"/>
         <source>Input layer</source>
         <translation>Couche source</translation>
     </message>
     <message>
-        <location filename="../../core/geometry_to_medians.py" line="83"/>
+        <location filename="../../core/geometry_to_medians.py" line="79"/>
         <source>Calculate using</source>
         <translation>Calculer en utilisant</translation>
     </message>
     <message>
-        <location filename="../../core/geometry_to_medians.py" line="92"/>
+        <location filename="../../core/geometry_to_medians.py" line="88"/>
         <source>Orientations calculated from</source>
         <translation>Orientations calculées à partir de la direction</translation>
     </message>
     <message>
-        <location filename="../../core/geometry_to_medians.py" line="101"/>
+        <location filename="../../core/geometry_to_medians.py" line="97"/>
         <source>Medians</source>
         <translation>Médianes</translation>
     </message>
     <message>
-        <location filename="../../core/geometry_to_medians.py" line="113"/>
+        <location filename="../../core/geometry_to_medians.py" line="109"/>
         <source>Geometries to medians</source>
         <translation>Lignes ou polygones vers médianes</translation>
     </message>
     <message>
-        <location filename="../../core/geometry_to_medians.py" line="129"/>
+        <location filename="../../core/geometry_to_medians.py" line="125"/>
         <source>The layer geometry type is different from a line or a polygon</source>
         <translation>Le type géométrique de la couche source est différent d'un type linéaire ou polygonal</translation>
     </message>
     <message>
-        <location filename="../../core/geometry_to_medians.py" line="135"/>
+        <location filename="../../core/geometry_to_medians.py" line="131"/>
         <source>The layer doesn&apos;t contain any feature: no output provided</source>
         <translation>La couche ne contient aucun objet : aucun résultat n'est fourni</translation>
     </message>
     <message>
-        <location filename="../../core/geometry_to_medians.py" line="203"/>
+        <location filename="../../core/geometry_to_medians.py" line="199"/>
         <source>No project is available in this context</source>
         <translation>Aucun projet disponible dans ce contexte</translation>
     </message>
@@ -124,7 +124,7 @@ La table d'attributs de la couche de sortie est identique à de la couche d'entr
     <message>
         <location filename="../../core/morphal_geometry_to_segments.py" line="87"/>
         <source>Geometries to segments</source>
-        <translation type="unfinished">Lignes ou polygones vers segments</translation>
+        <translation>Lignes ou polygones vers segments</translation>
     </message>
 </context>
 <context>
@@ -132,67 +132,112 @@ La table d'attributs de la couche de sortie est identique à de la couche d'entr
     <message>
         <location filename="../../core/polygon_indicators.py" line="148"/>
         <source>Compute multiple morphological indicators for polygons</source>
-        <translation>Calculer de nombreux indicateurs morphologiques pour polygones</translation>
+        <translation type="obsolete">Calculer de nombreux indicateurs morphologiques pour polygones</translation>
     </message>
     <message>
-        <location filename="../../core/polygon_indicators.py" line="73"/>
+        <location filename="../../core/polygon_indicators.py" line="77"/>
         <source>Layer CRS</source>
         <translation>SCR de la couche</translation>
     </message>
     <message>
-        <location filename="../../core/polygon_indicators.py" line="74"/>
+        <location filename="../../core/polygon_indicators.py" line="78"/>
         <source>Project CRS</source>
         <translation>SCR du projet</translation>
     </message>
     <message>
-        <location filename="../../core/polygon_indicators.py" line="75"/>
+        <location filename="../../core/polygon_indicators.py" line="79"/>
         <source>Ellipsoidal</source>
         <translation>Ellipsoïdale</translation>
     </message>
     <message>
-        <location filename="../../core/polygon_indicators.py" line="79"/>
+        <location filename="../../core/polygon_indicators.py" line="83"/>
         <source>Input layer</source>
         <translation>Couche source</translation>
     </message>
     <message>
-        <location filename="../../core/polygon_indicators.py" line="87"/>
+        <location filename="../../core/polygon_indicators.py" line="91"/>
         <source>Calculate using</source>
         <translation>Calculer en utilisant</translation>
     </message>
     <message>
-        <location filename="../../core/polygon_indicators.py" line="96"/>
+        <location filename="../../core/polygon_indicators.py" line="100"/>
         <source>Perimeter</source>
         <translation>Périmètre</translation>
     </message>
     <message>
-        <location filename="../../core/polygon_indicators.py" line="104"/>
+        <location filename="../../core/polygon_indicators.py" line="108"/>
         <source>Area</source>
         <translation>Aire</translation>
     </message>
     <message>
-        <location filename="../../core/polygon_indicators.py" line="112"/>
+        <location filename="../../core/polygon_indicators.py" line="156"/>
         <source>Miller&apos;s compactness index (roundness)</source>
         <translation>Compacité : indice de Miller (rondeur)</translation>
     </message>
     <message>
-        <location filename="../../core/polygon_indicators.py" line="120"/>
+        <location filename="../../core/polygon_indicators.py" line="148"/>
         <source>Gravelius&apos; compactness index</source>
         <translation>Compacité : indice de Gravelius</translation>
     </message>
     <message>
-        <location filename="../../core/polygon_indicators.py" line="128"/>
+        <location filename="../../core/polygon_indicators.py" line="164"/>
         <source>Polygonal elongation (based on MBR)</source>
         <translation>Elongation polygonale (basée sur le rectangle minimum englobant)</translation>
     </message>
     <message>
-        <location filename="../../core/polygon_indicators.py" line="136"/>
+        <location filename="../../core/polygon_indicators.py" line="196"/>
         <source>Morphological indicators</source>
         <translation>Indicateurs morphologiques</translation>
     </message>
     <message>
-        <location filename="../../core/polygon_indicators.py" line="230"/>
+        <location filename="../../core/polygon_indicators.py" line="344"/>
         <source>No project is available in this context</source>
         <translation>Aucun projet disponible dans ce contexte</translation>
+    </message>
+    <message>
+        <location filename="../../core/polygon_indicators.py" line="207"/>
+        <source>Compute morphological indicators for polygons</source>
+        <translation>Calculer des indicateurs morphologiques pour polygones</translation>
+    </message>
+    <message>
+        <location filename="../../core/polygon_indicators.py" line="224"/>
+        <source>The layer doesn&apos;t contain any feature: no output provided</source>
+        <translation>La couche ne contient aucun objet : aucun résultat n'est fourni</translation>
+    </message>
+    <message>
+        <location filename="../../core/polygon_indicators.py" line="116"/>
+        <source>Schum elongation</source>
+        <translation>Élongation (Schum)</translation>
+    </message>
+    <message>
+        <location filename="../../core/polygon_indicators.py" line="124"/>
+        <source>Morton index (spreading)</source>
+        <translation>Étalement (Morton)</translation>
+    </message>
+    <message>
+        <location filename="../../core/polygon_indicators.py" line="132"/>
+        <source>Alternative compacity</source>
+        <translation>Compacité (alternative)</translation>
+    </message>
+    <message>
+        <location filename="../../core/polygon_indicators.py" line="140"/>
+        <source>Alternative circle compacity</source>
+        <translation>Compactité (alternative circulaire)</translation>
+    </message>
+    <message>
+        <location filename="../../core/polygon_indicators.py" line="172"/>
+        <source>Area convexity defect</source>
+        <translation>Défaut de convexité (aire)</translation>
+    </message>
+    <message>
+        <location filename="../../core/polygon_indicators.py" line="180"/>
+        <source>Perimeter convexity defect</source>
+        <translation>Défaut de convexité (périmètre)</translation>
+    </message>
+    <message>
+        <location filename="../../core/polygon_indicators.py" line="188"/>
+        <source>Rectangular difference</source>
+        <translation>Différence au rectangle</translation>
     </message>
 </context>
 <context>
