@@ -45,8 +45,8 @@ class MorphALPolygonPerimeterArea(PTM4QgisAlgorithm):
     def help(self):
         return self.tr("\
             This algorithm computes polygon perimeters and areas in a vector layer.\
-            \nIt generates a new vector layer with the same content as the input one, but with\
-            additional attributes in its attributes table: : perimeter and area.")
+            \nIt creates a new vector layer with the same content as the input one, but with\
+            additional computed attributes : perimeter and area.")
 
     def __init__(self):
         super().__init__()

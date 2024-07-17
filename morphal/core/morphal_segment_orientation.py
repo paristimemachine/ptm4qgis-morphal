@@ -56,7 +56,11 @@ class MorphALSegmentOrientation(PTM4QgisAlgorithm):
     OUTPUT = "OUTPUT"
 
     def help(self):
-        return self.tr("Compute the orientations of a layer of segments")
+        return self.tr("\
+            This algorithm computes the orientations of a layer of segments.\
+            \nIt generates a new vector layer with the same content as the input one, but with\
+            additional attributes: orientation, computed from East or from North, and if specified,\
+            a classification based on the computed orientations and a classification step to specify.")
 
     def __init__(self):
         super().__init__()
