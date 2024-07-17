@@ -19,6 +19,7 @@
 
 from qgis.core import QgsProcessingProvider
 
+from morphal.core.geometry_to_medians import MorphALGeometryToMedians
 from morphal.core.morphal_geometry_to_segments import MorphALGeometryToSegments
 from morphal.core.morphal_polygon_perimeter_area import MorphALPolygonPerimeterArea
 from morphal.core.morphal_rectangular_characterisation import (
@@ -38,6 +39,7 @@ class PTM4QgisProvider(QgsProcessingProvider):
         self.algorithms_list = [
             MorphALPolygonPerimeterArea(),
             MorphALGeometryToSegments(),
+            MorphALGeometryToMedians(),
             MorphALSegmentOrientation(),
             MorphALRectangularCharacterisation(),
         ]
