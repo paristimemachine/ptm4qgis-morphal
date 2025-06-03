@@ -1,2 +1,1 @@
-# ptm4qgis-morphal
-MorphAL plugin for QGIS
+# MorphAL plugin for QGIS
