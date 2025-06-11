@@ -1,32 +1,49 @@
 [general]
 name=MorphAL
-about=MorphAL plugin for QGIS
 category=Vector
+
+description=Morphological Analysis
+description[fr]=Analyse Morphologique
+
+about=MorphAL (for Morphological Analysis) automates a set of processes and indicator calculations
+    to facilitate the identification and the characterisation of morphology of urban and rural tissues
+    using vector data.
+
+    The primary purpose of these computed indicators and geometric outputs is to facilitate the search
+    for landscape structuring logics, but they can also be easily used in other contexts.
+
+tags=morphological analysis, morphometry, spatial indicators, land parcel, landscape metrics, processing, vector, PTM
+tags[fr]=analyse morphologique, morphométrie, indicateurs spatiaux, parcelle, métriques du paysage, traitement, vecteur, PTM
+
 hasProcessingProvider=True
-description=MorphAL plugin for QGIS
-tags=morphological analysis, processing, vector, PTM
+
 # icon=resources/images/default_icon.png
-# help=http://help
 
 # credits and contact
-author=Eric Grosso / PTM
+author=Eric Grosso (PTM)
 email=ptm.outils+morphal@gmail.com
-homepage=http://github.com/paristimemachine/ptm4qgis-morphal/
+homepage=https://doc.ptm.huma-num.fr/morphal/
 repository=https://github.com/paristimemachine/ptm4qgis-morphal/
 tracker=https://github.com/paristimemachine/ptm4qgis-morphal/issues
+help=https://doc.ptm.huma-num.fr/morphal/
 
-# experimental flag
+# QGIS metadata
 deprecated=False
 experimental=False
-server=False
-qgisMinimumVersion=3.8
-# qgisMinimumVersion=3.28
+qgisMinimumVersion=3.4
 qgisMaximumVersion=3.99
+server=False
+supportsQt6=False
 
 # versioning
-version=1.1e.0
-changelog=2024/07/17 v1.1.0 New morphological indicators, perf improvements
-changelog=2021/02/01 v1.0.0 Initial version
+version=1.1.0
+changelog=
+    Version 1.1.0
+    - Add new morphological indicators
+    - Improveme performance
+
+    Version 1.1.0
+    - Initial version
 
 # Since QGIS 3.8, a comma separated list of plugins to be installed
 # (or upgraded) can be specified.
